@@ -246,7 +246,13 @@ import ApplicationServices
                     print("NATIVE_ARCHIVE_PARAGRAPH full_text=true height=\(geometry.height)"); exit(0)
                 }
                 if paragraph != nil { queue += observed.children; continue }
-                let applicable = controlFrame ? (canPress || canSet) : menuItem != nil ? (role == kAXTextAreaRole || canPress) : (setValue == nil ? canPress : canSet)
+                // A disclosure's explicit label action can retain a text role.
+                // Only these exact owned labels may use their advertised AXPress.
+                let disclosurePress = !controlFrame && menuItem == nil && setValue == nil && !inspect
+                    && ["settings.compatibility", "models.compatibility"].contains(label)
+                    && (value(node, kAXIdentifierAttribute) as? String) == label
+                    && availableActions(node).contains(kAXPressAction)
+                let applicable = controlFrame ? (canPress || canSet) : menuItem != nil ? (role == kAXTextAreaRole || canPress) : (setValue == nil ? (canPress || disclosurePress) : canSet)
                 if names.contains(label), applicable {
                     guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("REFUSED foreground changed before action"); exit(6) }
                     if controlFrame {
@@ -285,34 +291,70 @@ import ApplicationServices
                         var selected = false
                         var ownedMenu: AXUIElement?
                         var projectItemIDs = Set<String>()
+                        var lastCandidates: [[String: Any]] = []
+                        var lastTraversalComplete = false
                         for _ in 0..<30 {
                             var pending = (value(root, kAXChildrenAttribute) as? [AXUIElement] ?? []) + [node]
                             var inspected = Set<CFHashCode>()
-                            var match: AXUIElement?
+                            var matches: [(item: AXUIElement, parent: AXUIElement, detail: [String: Any])] = []
+                            var candidates: [[String: Any]] = []
                             while !pending.isEmpty, inspected.count < 1500 {
                                 let element = pending.removeFirst()
                                 guard inspected.insert(CFHash(element)).inserted else { continue }
                                 var itemOwner: pid_t = 0
                                 guard AXUIElementGetPid(element, &itemOwner) == .success, itemOwner == pid else { continue }
                                 let itemRole = value(element, kAXRoleAttribute) as? String ?? ""
-                                if itemRole == kAXMenuRole { ownedMenu = element }
                                 if itemRole == kAXMenuItemRole,
                                    let id = value(element, kAXIdentifierAttribute) as? String, isPanelMenuID(id) {
                                     // Ignore unrelated system services before reading
                                     // their titles. Evidence contains only project IDs.
                                     projectItemIDs.insert(id)
                                     if id == menuItem, value(element, kAXTitleAttribute) as? String == menuTitle {
-                                        match = element
+                                        let itemFrame = frame(element)
+                                        let enabled = value(element, kAXEnabledAttribute) as? Bool ?? false
+                                        let pressable = availableActions(element).contains(kAXPressAction)
+                                        var parent: AXUIElement?
+                                        if let reference = value(element, kAXParentAttribute),
+                                           CFGetTypeID(reference) == AXUIElementGetTypeID() {
+                                            parent = unsafeDowncast(reference, to: AXUIElement.self)
+                                        }
+                                        let parentRole = parent.flatMap { value($0, kAXRoleAttribute) as? String }
+                                        let menuFrame = parent.flatMap { frame($0) }
+                                        var parentPID: pid_t = 0
+                                        let ownedParent = parent.map { AXUIElementGetPid($0, &parentPID) == .success && parentPID == pid } ?? false
+                                        var geometryMatches = false
+                                        if let itemFrame, let menuFrame {
+                                            geometryMatches = itemFrame.width > 0 && itemFrame.height > 0 &&
+                                                menuFrame.width > 0 && menuFrame.height > 0 && menuFrame.intersects(itemFrame)
+                                        }
+                                        let qualified = enabled && pressable && ownedParent && parentRole == kAXMenuRole && geometryMatches
+                                        let detail: [String: Any] = ["identifier": id, "enabled": enabled, "pressable": pressable,
+                                            "parent_role": parentRole ?? "missing", "owned_parent": ownedParent,
+                                            "item_frame": itemFrame.map { NSStringFromRect($0) } ?? "missing",
+                                            "menu_frame": menuFrame.map { NSStringFromRect($0) } ?? "missing",
+                                            "qualified": qualified]
+                                        candidates.append(detail)
+                                        if qualified, let parent { matches.append((element, parent, detail)) }
+                                        if ownedParent, parentRole == kAXMenuRole, let menuFrame,
+                                           menuFrame.width > 0, menuFrame.height > 0 { ownedMenu = parent }
                                     }
                                 }
                                 pending += value(element, kAXChildrenAttribute) as? [AXUIElement] ?? []
                             }
-                            if let match {
+                            lastTraversalComplete = pending.isEmpty
+                            if !candidates.isEmpty { lastCandidates = candidates }
+                            // A text view may expose its attached, unshown menu as
+                            // well as the tracked popup. Never select a static or
+                            // ambiguous item merely because AXPress acknowledges it.
+                            if pending.isEmpty, matches.count == 1, let match = matches.first {
                                 var owner: pid_t = 0
-                                guard AXUIElementGetPid(match, &owner) == .success, owner == pid,
+                                guard AXUIElementGetPid(match.item, &owner) == .success, owner == pid,
                                       NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("REFUSED unexpected menu owner or foreground"); exit(6) }
-                                AXUIElementSetMessagingTimeout(match, 1.0)
-                                let selectedResult = AXUIElementPerformAction(match, kAXPressAction as CFString)
+                                ownedMenu = match.parent
+                                let targetData = try! JSONSerialization.data(withJSONObject: match.detail, options: [.sortedKeys])
+                                print("NATIVE_UI_MENU_TARGET " + String(decoding: targetData, as: UTF8.self))
+                                AXUIElementSetMessagingTimeout(match.item, 1.0)
+                                let selectedResult = AXUIElementPerformAction(match.item, kAXPressAction as CFString)
                                 guard selectedResult == .success else { print("FAIL menu selection error \(selectedResult.rawValue)"); exit(1) }
                                 selected = true; break
                             }
@@ -321,7 +363,9 @@ import ApplicationServices
                         if !selected, let ownedMenu { _ = AXUIElementPerformAction(ownedMenu, kAXCancelAction as CFString) }
                         let opened = await opening.value
                         guard selected, opened == AXError.success.rawValue else {
-                            print("FAIL exact project menu ID/title unavailable: \(menuItem), open=\(opened), project_ids=\(projectItemIDs.sorted())"); exit(1)
+                            let candidatesData = try! JSONSerialization.data(withJSONObject: lastCandidates, options: [.sortedKeys])
+                            print("NATIVE_UI_MENU_CANDIDATES " + String(decoding: candidatesData, as: UTF8.self))
+                            print("FAIL exact project menu ID/title unavailable: \(menuItem), open=\(opened), traversal_complete=\(lastTraversalComplete), project_ids=\(projectItemIDs.sorted())"); exit(1)
                         }
                         let menuData = try! JSONSerialization.data(withJSONObject: projectItemIDs.sorted())
                         print("NATIVE_UI_CONTEXT_ITEMS " + String(decoding: menuData, as: UTF8.self))
@@ -352,7 +396,7 @@ import ApplicationServices
                                 targets.formUnion(observation.names)
                                 pending.append(contentsOf: observation.children)
                             }
-                            if targets.contains("settings.floatingEntry"), targets.contains("settings.inputTarget"),
+                            if targets.contains("settings.floatingEntry"), targets.contains("settings.panelPlacement"),
                                !targets.contains("archive.favorites") { arrived = true; break }
                             try? await Task.sleep(for: .milliseconds(80))
                         }
@@ -363,7 +407,7 @@ import ApplicationServices
                     }
                     guard result == .success else { print("FAIL native control action error \(result.rawValue), role=\(role), actions=\(availableActions(node)), enabled=\(String(describing: value(node, kAXEnabledAttribute)))"); exit(1) }
                     guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("FAIL AXPress changed foreground"); exit(6) }
-                    print("NATIVE_UI_\(setValue == nil ? "AXPRESS" : "AXSETVALUE") \(label) fixture_pid=\(pid) foreground_unchanged=true"); exit(0)
+                    print("NATIVE_UI_\(setValue == nil ? "AXPRESS" : "AXSETVALUE") \(label) fixture_pid=\(pid) foreground_unchanged=true role=\(role)"); exit(0)
                 }
                 queue += observed.children
             }

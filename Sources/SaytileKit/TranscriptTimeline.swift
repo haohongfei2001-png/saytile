@@ -20,15 +20,19 @@ public struct TimelineTextSnapshot: Equatable, Sendable {
     public let recordingID: UUID
     public let revisionID: UUID?
     public let text: String
+    /// The exact immutable revision text behind a rendered/manual-use snapshot.
+    /// `text` may contain a visible prefix or a separator between ASR chunks.
+    public let sourceText: String
 
     public init(_ entry: TimelineEntry) {
         self.init(position: entry.position, recordingID: entry.id, revisionID: entry.recording.preferredRevisionID, text: entry.recording.text)
     }
-    fileprivate init(position: Int64, recordingID: UUID, revisionID: UUID?, text: String) {
+    fileprivate init(position: Int64, recordingID: UUID, revisionID: UUID?, text: String, sourceText: String? = nil) {
         self.position = position
         self.recordingID = recordingID
         self.revisionID = revisionID
         self.text = text
+        self.sourceText = sourceText ?? text
     }
 }
 
@@ -180,16 +184,20 @@ extension SaytileStore {
                 INSERT OR IGNORE INTO timeline_paragraphs(position,paragraph_start) SELECT position,paragraph_start FROM mapped;
                 """)
         }
+        // Update the capture policy without regrouping any existing paragraph or
+        // changing the schema understood by earlier versions. Civil time groups
+        // remain independent: speaking across midnight must not split a thought.
         try db.script("""
-            CREATE TRIGGER IF NOT EXISTS timeline_natural_paragraph AFTER INSERT ON transcript_timeline
+            DROP TRIGGER IF EXISTS timeline_natural_paragraph;
+            CREATE TRIGGER timeline_natural_paragraph AFTER INSERT ON transcript_timeline
             WHEN NEW.recording_id IS NOT NULL BEGIN
               INSERT INTO timeline_paragraphs(position,paragraph_start)
               VALUES(NEW.position,COALESCE((
-                SELECT CASE WHEN prior.day=NEW.day AND prior.utc_offset=NEW.utc_offset AND NEW.started>=prior.started
-                  AND NEW.started-COALESCE(prior.ended,prior.started+r.total_frames/r.sample_rate)<min(15,s.idle_seconds)
+                SELECT CASE WHEN NEW.started>=prior.started
+                  AND NEW.started-COALESCE(prior.ended,prior.started+r.total_frames/r.sample_rate)<30
                   THEN p.paragraph_start END
                 FROM transcript_timeline prior JOIN recordings r ON r.id=prior.recording_id
-                JOIN timeline_paragraphs p ON p.position=prior.position JOIN timeline_settings s ON s.singleton=1
+                JOIN timeline_paragraphs p ON p.position=prior.position
                 WHERE prior.position<NEW.position ORDER BY prior.position DESC LIMIT 1),NEW.position));
               UPDATE recordings SET pinned=1 WHERE id=NEW.recording_id AND EXISTS(
                 SELECT 1 FROM timeline_paragraphs p JOIN transcript_timeline t ON t.position=p.position
@@ -496,21 +504,44 @@ extension SaytileStore {
         try Self.formatParagraphText(timelineGroupRows(group: group, through: last, after: cleared), displayed: displayed)
     }
 
-    /// A single SQLite statement supplies a consistent whole-paragraph copy even
-    /// when its member text spans more than one UI page. The panel freezes its tail
-    /// at the click and excludes explicitly cleared history; the archive defaults
-    /// to all members. Never changes the pasteboard after the explicit copy.
-    public nonisolated func paragraphCopy(paragraphID: Int64, through last: Int64 = .max,
-                                          after cleared: Int64 = 0, displayed: [Int64: String]) throws -> String {
+    /// One read supplies all members, including those outside the TextKit page.
+    /// Rendered revisions and text win over a newer ASR result not yet presented.
+    /// Each returned fragment includes its display separator, so joining `text`
+    /// verbatim is identical for copying and manual insertion.
+    public nonisolated func paragraphTextSnapshots(paragraphID: Int64, through last: Int64 = .max,
+                                                   after cleared: Int64 = 0,
+                                                   rendered: [TimelineTextSnapshot] = [],
+                                                   displayed: [Int64: String] = [:]) throws -> [TimelineTextSnapshot] {
         let reader = try StoreDatabase(url: directory.appendingPathComponent("Saytile.sqlite"), readOnly: true)
         let rows = try reader.rows("""
-            SELECT t.position,v.text,v.origin,p.paragraph_start,ph.break_hidden FROM timeline_paragraphs p
-            JOIN timeline_paragraphs ph ON ph.position=p.paragraph_start
+            SELECT t.position,r.id,r.preferred_revision,v.text FROM timeline_paragraphs p
             JOIN transcript_timeline t ON t.position=p.position JOIN recordings r ON r.id=t.recording_id
             LEFT JOIN revisions v ON v.id=r.preferred_revision
             WHERE p.paragraph_start=? AND t.position<=? AND t.position>? AND r.deleted=0 ORDER BY t.position
             """, [.int(paragraphID), .int(last), .int(cleared)])
-        return try Self.formatParagraphText(rows, displayed: displayed)
+        let seen = Dictionary(rendered.map { ($0.position, $0) }, uniquingKeysWith: { _, latest in latest })
+        var preceding: String?
+        return try rows.compactMap { row in
+            guard let position = row["position"].flatMap(Int64.init),
+                  let id = row["id"].flatMap(UUID.init(uuidString:)) else { throw StoreError.invalidBoundary }
+            let saved = TimelineTextSnapshot(position: position, recordingID: id,
+                revisionID: row["preferred_revision"].flatMap(UUID.init(uuidString:)), text: row["text"] ?? "")
+            let source = seen[position].flatMap { $0.recordingID == id ? $0 : nil } ?? saved
+            let text = displayed[position] ?? source.text
+            guard !text.isEmpty else { return nil }
+            let separator = preceding.map { VoiceTranscriptFlow.separator(between: $0, and: text) } ?? ""
+            preceding = text
+            return TimelineTextSnapshot(position: position, recordingID: id, revisionID: source.revisionID,
+                                        text: separator + text, sourceText: source.sourceText)
+        }
+    }
+
+    /// Copy and insertion share the same whole-paragraph text and joining rules.
+    /// A click produces a value snapshot; later recognition never rewrites it.
+    public nonisolated func paragraphCopy(paragraphID: Int64, through last: Int64 = .max,
+                                          after cleared: Int64 = 0, displayed: [Int64: String]) throws -> String {
+        try paragraphTextSnapshots(paragraphID: paragraphID, through: last, after: cleared,
+                                   displayed: displayed).map(\.text).joined()
     }
 
     private nonisolated static func formatParagraphText(_ rows: [[String: String]], displayed: [Int64: String]) throws -> String {

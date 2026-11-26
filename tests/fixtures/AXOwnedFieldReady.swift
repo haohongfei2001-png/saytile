@@ -243,6 +243,10 @@ func ownedWitnessReadiness(_ witness: String?, original: String) -> OwnedWitness
         } catch { print("OWNED_SNAPSHOT_ERROR", stage, error); throw error }
     }
     func textWitness(at expected: InputTargetSnapshot) -> String? { base.textWitness(at: expected) }
+    func checkedTextWitness(at expected: InputTargetSnapshot) throws -> String? {
+        do { return try base.checkedTextWitness(at: expected) }
+        catch { print("OWNED_WITNESS_ERROR", stage, error); fflush(nil); throw error }
+    }
     func dispatch(_ text: String, to expected: InputTargetSnapshot) throws -> Bool {
         writes += 1
         let start = ProcessInfo.processInfo.systemUptime

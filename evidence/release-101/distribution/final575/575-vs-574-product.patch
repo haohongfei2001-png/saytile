@@ -1,0 +1,20 @@
+diff --git a/Sources/SaytileApp/SettingsView.swift b/Sources/SaytileApp/SettingsView.swift
+index 75ee9df..55a07de 100644
+--- a/Sources/SaytileApp/SettingsView.swift
++++ b/Sources/SaytileApp/SettingsView.swift
+@@ -35,7 +35,7 @@ struct SettingsView: View {
+     }
+     @ViewState private var cleanup = false
+     private var page: SettingsPage { navigation.page }
+-    private var version: String { (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String).map { "内测 \($0)" } ?? "开发构建" }
++    private var version: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "开发构建" }
+     var body: some View {
+         GeometryReader { geo in
+             let compact = geo.size.width < 640
+diff --git a/packaging/BUILD_NUMBER b/packaging/BUILD_NUMBER
+index f27ce70..db08d2a 100644
+--- a/packaging/BUILD_NUMBER
++++ b/packaging/BUILD_NUMBER
+@@ -1 +1 @@
+-574
++575

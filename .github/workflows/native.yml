@@ -1,10 +1,10 @@
 name: Saytile native
 on:
   pull_request:
-    paths: ['native/LocalASR/**', 'scripts/prepare-local-runtime.sh', 'Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/RiftletFeedbackTests/**', 'tests/fixtures/AppModelProbe.swift', 'tests/fixtures/FeedbackSettingsModelProbe.swift', 'scripts/test-feedback-native.py', 'tests/fixtures/VoiceRailGestureProbe.swift', 'tests/fixtures/PanelBoundary*.swift', 'scripts/test-panel-boundary.sh', 'scripts/test-app-model.sh', 'tests/fixtures/AX*.swift', 'tests/fixtures/owned-chrome-draft.mjs', 'tests/fixtures/owned-safari-draft.mjs', 'scripts/test-input-native.py', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-native-timeline.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', '.github/workflows/native.yml']
+    paths: ['native/LocalASR/**', 'scripts/prepare-local-runtime.sh', 'Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/RiftletFeedbackTests/**', 'tests/fixtures/AppModelProbe.swift', 'tests/fixtures/ModelWorkerPipeProbe.swift', 'tests/fixtures/FeedbackSettingsModelProbe.swift', 'scripts/test-feedback-native.py', 'tests/fixtures/VoiceRailGestureProbe.swift', 'tests/fixtures/PanelBoundary*.swift', 'scripts/test-panel-boundary.sh', 'scripts/test-app-model.sh', 'tests/fixtures/AX*.swift', 'tests/fixtures/owned-chrome-draft.mjs', 'tests/fixtures/owned-safari-draft.mjs', 'scripts/test-input-native.py', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-native-timeline.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-qwen-native-smoke.py', 'scripts/bench-local-asr.py', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', 'distribution/**', 'tests/test_release_update.py', 'tests/fixtures/AppUpdateControllerProbe.swift', 'scripts/test-update-controller.sh', 'scripts/test-update-standard-ui.py', 'tests/fixtures/StandardUpdateUIProbe.swift', 'evidence/release-101/distribution/final-prepared-update/appcast.xml', '.github/workflows/native.yml']
   push:
     branches: [main]
-    paths: ['native/LocalASR/**', 'scripts/prepare-local-runtime.sh', 'Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/RiftletFeedbackTests/**', 'tests/fixtures/AppModelProbe.swift', 'tests/fixtures/FeedbackSettingsModelProbe.swift', 'scripts/test-feedback-native.py', 'tests/fixtures/VoiceRailGestureProbe.swift', 'tests/fixtures/PanelBoundary*.swift', 'scripts/test-panel-boundary.sh', 'scripts/test-app-model.sh', 'tests/fixtures/AX*.swift', 'tests/fixtures/owned-chrome-draft.mjs', 'tests/fixtures/owned-safari-draft.mjs', 'scripts/test-input-native.py', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-native-timeline.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', '.github/workflows/native.yml']
+    paths: ['native/LocalASR/**', 'scripts/prepare-local-runtime.sh', 'Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/RiftletFeedbackTests/**', 'tests/fixtures/AppModelProbe.swift', 'tests/fixtures/ModelWorkerPipeProbe.swift', 'tests/fixtures/FeedbackSettingsModelProbe.swift', 'scripts/test-feedback-native.py', 'tests/fixtures/VoiceRailGestureProbe.swift', 'tests/fixtures/PanelBoundary*.swift', 'scripts/test-panel-boundary.sh', 'scripts/test-app-model.sh', 'tests/fixtures/AX*.swift', 'tests/fixtures/owned-chrome-draft.mjs', 'tests/fixtures/owned-safari-draft.mjs', 'scripts/test-input-native.py', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-native-timeline.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-qwen-native-smoke.py', 'scripts/bench-local-asr.py', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', 'distribution/**', 'tests/test_release_update.py', 'tests/fixtures/AppUpdateControllerProbe.swift', 'scripts/test-update-controller.sh', 'scripts/test-update-standard-ui.py', 'tests/fixtures/StandardUpdateUIProbe.swift', 'evidence/release-101/distribution/final-prepared-update/appcast.xml', '.github/workflows/native.yml']
 permissions:
   contents: read
 concurrency:
@@ -12,7 +12,12 @@ concurrency:
   cancel-in-progress: true
 jobs:
   swift-tests:
-    runs-on: macos-26
+    # The full XCTest/Swift Testing suite and standard Sparkle UI have no model
+    # inference. Reuse the Intel macOS 26 pool and protocol build products when
+    # hosted arm64 capacity is unavailable; keep all suites/arguments unchanged.
+    # Native/runtime jobs remain arm64,
+    # and real Qwen product acceptance runs separately on the M5.
+    runs-on: macos-26-intel
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -32,9 +37,31 @@ jobs:
             evidence/no-api-product/protocol/server.log
             evidence/no-api-product/protocol/wire-audit.json
           retention-days: 14
+      - name: Standard Sparkle dialog in the disposable CI desktop
+        env:
+          SAYTILE_ALLOW_STANDARD_UPDATE_UI: '1'
+        run: |
+          scripts/prepare-updater.sh
+          swift build --scratch-path /tmp/saytile-no-api-protocol-swift --product SaytileKit
+          export SAYTILE_UPDATE_PROBE_PRODUCTS="$(swift build --scratch-path /tmp/saytile-no-api-protocol-swift --show-bin-path)"
+          export SAYTILE_UPDATE_PROBE_MODULE_MAP="$SAYTILE_UPDATE_PROBE_PRODUCTS/CAudio.build/module.modulemap"
+          if [[ ! -f "$SAYTILE_UPDATE_PROBE_MODULE_MAP" ]]; then
+            export SAYTILE_UPDATE_PROBE_MODULE_MAP="$SAYTILE_UPDATE_PROBE_PRODUCTS/../../Intermediates.noindex/GeneratedModuleMaps/CAudio.modulemap"
+          fi
+          python3 scripts/test-update-standard-ui.py --output "$RUNNER_TEMP/standard-update-ui"
+      - name: Preserve standard update dialog and dismissal evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Saytile-standard-update-ui
+          path: ${{ runner.temp }}/standard-update-ui
+          if-no-files-found: warn
+          retention-days: 14
   native:
     runs-on: macos-26
-    timeout-minutes: 25
+    # Allow the bounded 8-minute acoustic fixture after a cold runtime build
+    # and UI checks; all individual probe/helper deadlines remain unchanged.
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
@@ -48,13 +75,23 @@ jobs:
           swift --version
           git rev-parse HEAD
           test -d "$(xcode-select -p)/Platforms/MacOSX.platform"
-      - name: Signed update packaging configuration
-        run: python3 -m unittest discover -s tests -p test_update_configuration.py
+      - name: Check actual Metal availability for one Qwen acoustic smoke
+        id: qwen_metal
+        timeout-minutes: 2
+        run: python3 scripts/test-qwen-native-smoke.py --preflight-only --output "$RUNNER_TEMP/qwen-native-smoke"
+      - name: Signed update packaging and release preparation
+        run: |
+          python3 -m unittest discover -s tests -p test_update_configuration.py
+          python3 -m unittest discover -s tests -p test_release_update.py
       - name: Inherited Swift contracts
         run: |
           swiftc -swift-version 6 -typecheck contracts/Contracts.swift
           swiftc -swift-version 6 contracts/Contracts.swift tests/SwiftSmoke.swift -o /tmp/saytile-contract-smoke
           /tmp/saytile-contract-smoke
+      - name: Bounded first-window PCM read-ahead without dropping original audio
+        run: |
+          swiftc -swift-version 6 -parse-as-library native/LocalASR/Sources/SaytileModelWorker/PCMFrameReader.swift tests/fixtures/ModelWorkerPipeProbe.swift -o /tmp/saytile-worker-pipe
+          /tmp/saytile-worker-pipe
       - run: scripts/test-app-model.sh
       - name: Owned native window boundary and restoration
         run: |
@@ -74,7 +111,61 @@ jobs:
             /tmp/saytile-panel-boundary-ci/other/*.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Identify exact native runtime build inputs
+        id: runtime_cache_key
+        shell: bash
+        run: |
+          set -euo pipefail
+          runtime_toolchain_hash="$(
+            {
+              sw_vers -buildVersion
+              uname -m
+              xcodebuild -version
+              xcode-select -p
+              swift --version
+              xcrun clang --version
+              xcrun --sdk macosx --show-sdk-build-version
+              xcrun --sdk macosx --show-sdk-path
+              pwd
+            } | shasum -a 256 | cut -d ' ' -f 1
+          )"
+          # Hash tracked inputs only: restoring .build/.vendor must not alter
+          # the key. Native dependency revisions/checksums live in these files.
+          runtime_inputs_hash="$(git ls-files -z native/LocalASR scripts/build-app.sh scripts/build-local-runtime.sh scripts/prepare-local-runtime.sh | xargs -0 shasum -a 256 | shasum -a 256 | cut -d ' ' -f 1)"
+          echo "key=local-runtime-v1-${{ runner.os }}-${{ runner.arch }}-$runtime_toolchain_hash-$runtime_inputs_hash" >> "$GITHUB_OUTPUT"
+      - name: Restore native runtime build intermediates
+        id: runtime_cache
+        uses: actions/cache/restore@v5
+        continue-on-error: true
+        with:
+          path: |
+            native/LocalASR/.build
+            native/LocalASR/.vendor
+            .build/local-asr
+          key: ${{ steps.runtime_cache_key.outputs.key }}
+          # No partial-key fallback, app bundles, models, or user data.
       - run: scripts/build-app.sh
+        id: candidate
+      - name: Save successful native runtime build before UI checks
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' && steps.runtime_cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        continue-on-error: true
+        with:
+          path: |
+            native/LocalASR/.build
+            native/LocalASR/.vendor
+            .build/local-asr
+          key: ${{ steps.runtime_cache_key.outputs.key }}
+          # Cache availability is optional; every run still builds and signs
+          # the candidate, verifies pinned downloads, and runs SwiftPM.
+      - name: Real Sparkle release-notes delegate contract
+        run: |
+          export SAYTILE_UPDATE_PROBE_PRODUCTS="$(swift build --scratch-path /tmp/saytile-rc-model --show-bin-path)"
+          export SAYTILE_UPDATE_PROBE_MODULE_MAP="$SAYTILE_UPDATE_PROBE_PRODUCTS/CAudio.build/module.modulemap"
+          if [[ ! -f "$SAYTILE_UPDATE_PROBE_MODULE_MAP" ]]; then
+            export SAYTILE_UPDATE_PROBE_MODULE_MAP="$SAYTILE_UPDATE_PROBE_PRODUCTS/../../Intermediates.noindex/GeneratedModuleMaps/CAudio.modulemap"
+          fi
+          bash scripts/test-update-controller.sh
       - name: Isolated cloud probe CLI boundaries
         run: python3 research/asr/validation/fusion-quality/check-probe-isolation.py --app dist/Saytile.app/Contents/MacOS/Saytile --output "$RUNNER_TEMP/probe-isolation.json"
       - name: Isolated connection setup CLI boundaries
@@ -85,7 +176,8 @@ jobs:
           SAYTILE_EDITOR_REVIEW=reopen dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/editor-data" --ui-review "$RUNNER_TEMP/saytile-editor"
       - name: Shared natural paragraphs in real panel and archive
         run: |
-          SAYTILE_NATURAL_PARAGRAPHS=1 dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/natural-paragraph-data" --ui-review "$RUNNER_TEMP/saytile-natural-paragraphs"
+          swiftc -swift-version 6 -parse-as-library tests/fixtures/NativeUIControlProbe.swift -o "$RUNNER_TEMP/saytile-ui-control"
+          SAYTILE_UI_CONTROL_PROBE="$RUNNER_TEMP/saytile-ui-control" SAYTILE_NATURAL_PARAGRAPHS=1 dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/natural-paragraph-data" --ui-review "$RUNNER_TEMP/saytile-natural-paragraphs"
       - name: Preserve natural paragraph screenshots and receipts
         if: always()
         uses: actions/upload-artifact@v4
@@ -95,11 +187,14 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Native windows with synthetic data
-        run: python3 scripts/test-native-ui.py --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui"
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' }}
+        run: python3 scripts/test-native-ui.py --controls --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui"
       - name: Native feedback controls and process restart without network
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' }}
         run: python3 scripts/test-feedback-native.py --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui/feedback"
       - name: Native continuous timeline with 12000 isolated utterances
-        run: python3 scripts/test-native-timeline.py --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui/timeline"
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' }}
+        run: python3 scripts/test-native-timeline.py --controls --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui/timeline"
       - name: Preserve native panel screenshots and review manifest
         if: always()
         uses: actions/upload-artifact@v4
@@ -108,11 +203,26 @@ jobs:
           path: ${{ runner.temp }}/saytile-ui
           if-no-files-found: warn
           retention-days: 14
+      - name: One real Qwen fixture with complete PCM and EOS
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' && steps.qwen_metal.outputs.available == 'true' }}
+        timeout-minutes: 8
+        run: python3 scripts/test-qwen-native-smoke.py --app dist/Saytile.app --output "$RUNNER_TEMP/qwen-native-smoke"
+      - name: Preserve real Qwen smoke or unavailable-Metal receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Saytile-qwen-native-smoke
+          path: ${{ runner.temp }}/qwen-native-smoke
+          if-no-files-found: warn
+          retention-days: 14
       - name: Isolated startup without microphone
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' }}
         run: dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/saytile-smoke" --smoke-test
       - name: Preserve app bundle permissions
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' }}
         run: ditto -c -k --sequesterRsrc --keepParent dist/Saytile.app dist/Saytile-native-candidate.zip
       - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' }}
         with:
           name: Saytile-native-candidate
           path: dist/Saytile-native-candidate.zip

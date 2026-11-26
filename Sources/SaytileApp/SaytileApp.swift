@@ -257,6 +257,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             model.hidePanel = { [weak self] in self?.explicitlyHidePanel() }
             model.openArchive = { [weak self] in self?.presentWorkspace(.archive) }
             model.openSettings = { [weak self] in self?.openWorkspace() }
+            model.openFirstUse = { [weak self] in self?.presentWorkspace(.models) }
             if let index = CommandLine.arguments.firstIndex(of: "--single-asr-probe"), CommandLine.arguments.count > index + 1 {
                 Task {
                     // Finish startup reconciliation before importing this new attempt.
@@ -439,6 +440,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 showPanel()
             }
             updateFloatingEntry()
+            if !isDiagnostic, directoryIndex == nil {
+                Task { await model.presentFirstUseIfNeeded() }
+            }
             if directoryIndex != nil {
                 let configuration = model.appliedRecognitionConfiguration
                 let report = "SAYTILE_ISOLATED_LAUNCH cloud_enabled=\(configuration.cloudEnabled) automatic_recovery=\(configuration.automaticRecovery) shortcut=\(model.shortcutChoice) visible_panel=\(panel?.isVisible == true) hotkey_registered=\(hotKey != nil)\n"

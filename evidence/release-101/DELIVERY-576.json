@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "version": "1.0.1",
+  "build": 576,
+  "product_source": "2d12129f2031fdf827d51fa1796d155e79243e07",
+  "ci_source": "27e758662ec00708d56ae063561aaec0dc578b74",
+  "verdict": "HOLD",
+  "date": "2026-11-25 Asia/Shanghai",
+  "evidence": {
+    "artifact": {
+      "file": "evidence/release-101/build/artifact-576.json",
+      "sha256": "e88c6dd84f6edc2ecbb94c949a647c8c6f51cf9c6872b601d5fc35595241a79c"
+    },
+    "signature": {
+      "file": "evidence/release-101/build/signature-gatekeeper576.json",
+      "sha256": "2cb763ce7e4b9e7109539b6fa7d64344665633b81178d57b3ecf0b7528350fb5"
+    },
+    "install": {
+      "file": "evidence/release-101/install-dmg576.json",
+      "sha256": "def919b314851dee580b599f343d969cf5d20e209fe1f5e352097b8fd6d71ac9"
+    },
+    "rollback018": {
+      "file": "evidence/release-101/rollback-018-576.json",
+      "sha256": "7a9d8a757adba897d631c956e69cc9da74915a6ff00c0e804b27fb9c44e257a0"
+    },
+    "rollback533": {
+      "file": "evidence/release-101/rollback-533-576.json",
+      "sha256": "6c74d2c31b7d4eb658be536b6f03d642bba78230f6ce092172dad10de024a516"
+    },
+    "native_controls": {
+      "file": "evidence/release-101/native576-controls/manifest.json",
+      "sha256": "f9baec9aa47ec21ad1825dcd0124a3fd8d8afcfa7ed6c826ef7f2147bc5c60af"
+    },
+    "native_windows": {
+      "file": "evidence/release-101/native576-windows/receipt.json",
+      "sha256": "2001de0297fa78fcc25e6bbc063c328767c6c8d3fa9e006a3f48202a2df686d4"
+    },
+    "native_asr": {
+      "file": "evidence/release-101/native576-asr/final-source-check.json",
+      "sha256": "c768f870ffa65de48a6f047fac0a5d703690e15d70ddeddbca38b26722801f8e"
+    },
+    "quality": {
+      "file": "evidence/release-101/final-cohort-review/quality-comparison-complete.json",
+      "sha256": "830a55f29e2a1c264bfbd32698c817d79f6433c4cefa40c38345374ba2deedde"
+    },
+    "paired": {
+      "file": "evidence/release-101/final-paired-review/comparison.json",
+      "sha256": "aff877d22fb1050b12fc33893261b65cae8f3231cceb15088a30798f7d1239fb"
+    },
+    "soak": {
+      "file": "evidence/release-101/regression-final/soak.json",
+      "sha256": "bc6e6ba13c322362abbeff84785d112999069fb2b5ea1f7af3a6bad8fdf334fd"
+    },
+    "store_processes": {
+      "file": "evidence/release-101/distribution/final576/storage-processes.json",
+      "sha256": "ea9b389e1d79d0706234758e1c5813de8757159840e0a26438ab7d4dbf17963b"
+    },
+    "model_resume": {
+      "file": "evidence/release-101/model-resume-real/receipt.json",
+      "sha256": "aa80c3cdfed1115f2e117979b1cd5c3f80c3eb5bd1ff5e9c336796f39247546e"
+    },
+    "update": {
+      "file": "evidence/release-101/distribution/final576/summary.json",
+      "sha256": "bf7046d45189e5e5f17c4f96e6cf4fe10da3169e2d31efc2aa70e6187989125c"
+    },
+    "review": {
+      "file": "evidence/release-101/final-independent-review/receipt.json",
+      "sha256": "6892a3e15a78ef106348c0335cd79681c5b34acad770ce5d1cf63963402da38c"
+    },
+    "ci": {
+      "file": "evidence/release-101/ci/27e7586/jobs.json",
+      "sha256": "feb48ad3b469c6847f6ded87bdd7db64c35378fb2922ff0811ab70a7488594c5"
+    },
+    "tests": {
+      "file": "evidence/release-101/ci/27e7586/suite-counts.json",
+      "sha256": "b494cbcd60e282ee8bd52ea353de472af26b1353f1127c5877aa2f5d0ee775bd"
+    },
+    "standard_ui": {
+      "file": "evidence/release-101/ci/27e7586/standard-update-ui/native-receipt.json",
+      "sha256": "dd8c413d6d2404d19155e9a484451a0575a911daf61366f70e50915a5676ad00"
+    },
+    "source_binding": {
+      "file": "evidence/release-101/build/product576-equivalence.json",
+      "sha256": "3618228b622e3b94663f495ead6edbaa9a582848adc6b29b41be9c6a1270e84b"
+    },
+    "protection": {
+      "file": "evidence/release-101/build/protection576-final.json",
+      "sha256": "e17d838606286ca187409471bcc436a75269f4bb07c8e37846fe2281a7db74f9"
+    }
+  },
+  "signature": "PASS",
+  "dmg_sha256": "9c3d18e26b2d9085fc0e71c3bc4da5183c028432cbc95efc55d5eda0e7290d1f",
+  "dmg_bytes": 65617522,
+  "remaining": {
+    "notary": "BLOCKED_NO_AUTHORIZATION",
+    "gatekeeper": "BLOCKED_UNNOTARIZED",
+    "performance": "OPEN: first/long-gap tail not eliminated; CPU improvement not proved",
+    "chrome_original_failure": "UNKNOWN underlying field; conservative classification fixed and latest actual CI PASS",
+    "microphone": "NOT_RUN_LID_CLOSED",
+    "physical_8gb_mac": "NOT_RUN",
+    "physical_power_loss": "NOT_RUN",
+    "power_watts": "NOT_MEASURED",
+    "icloud_private_feedback": "NOT_RUN_NOT_ENABLED",
+    "hosted_kernel_sleep": "BLOCKED: VirtualMac2,1 runner lacks scheduled hardware wake/system sleep support; no physical-host PASS"
+  },
+  "installed_build": 533,
+  "production_installed_preserved": true,
+  "published": false,
+  "merged": false,
+  "paid_api_calls": false,
+  "private_audio_used": false
+}

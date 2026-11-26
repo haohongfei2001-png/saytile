@@ -1,0 +1,404 @@
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":480,"height_points":240,"name":"panel-empty","width_pixels":680,"width_points":340}
+UI_CAPTURE panel-empty 340x240 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_CONTEXT_ITEMS ["panel.menu.bind","panel.menu.clear","panel.menu.copy","panel.menu.direct","panel.menu.edit","panel.menu.free","panel.menu.hide","panel.menu.insert","panel.menu.latest","panel.menu.settings"]
+NATIVE_UI_MENU_SELECT panel.menu.direct via=AXShowMenu menu=panel.transcript fixture_pid=87937 foreground_unchanged=true
+UI_NATIVE_MENU_ACK direct_mode=true
+NATIVE_UI_CONTEXT_ITEMS ["panel.menu.bind","panel.menu.clear","panel.menu.copy","panel.menu.direct","panel.menu.edit","panel.menu.free","panel.menu.hide","panel.menu.insert","panel.menu.latest","panel.menu.settings"]
+NATIVE_UI_MENU_SELECT panel.menu.free via=AXShowMenu menu=panel.transcript fixture_pid=87937 foreground_unchanged=true
+UI_NATIVE_MENU_ACK direct_mode=false
+UI_CONTROL_PASS modes through real native transcript context menu actions
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":480,"height_points":240,"name":"panel-content","width_pixels":680,"width_points":340}
+UI_CAPTURE panel-content 340x240 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":400,"height_points":200,"name":"panel-compact","width_pixels":640,"width_points":320}
+UI_CAPTURE panel-compact 320x200 foreground_unchanged=true candidate_activated=false
+WORKSPACE_REUSE_PASS same NSWindow and hosting view across archive, speech and storage routes
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_SETTINGS_INSPECT ["12:12","12:16","2026年11月25日","Saytile","Saytile UI Review archive","archive.favorite.886E46EF-3DDE-4130-8C44-BDC2F245BF62","archive.favorite.9CA0894E-56A6-4335-97A7-28936931DB6F","archive.favorite.D7EEA20D-9054-4224-8786-9CA74C6C4A78","archive.favorites","archive.includeUntranscribed","archive.play.D7EEA20D-9054-4224-8786-9CA74C6C4A78","archive.text.886E46EF-3DDE-4130-8C44-BDC2F245BF62","archive.text.9CA0894E-56A6-4335-97A7-28936931DB6F","archive.text.D7EEA20D-9054-4224-8786-9CA74C6C4A78","archive.time.1","archive.time.3","magnifyingglass","settings.page.about","settings.page.appearance","settings.page.archive","settings.page.cloud","settings.page.feedback","settings.page.input","settings.page.models","settings.page.speech","settings.page.storage","workspace.brand","云端服务","关于","包括未转写记录","原音与存储","取消这一段的收藏","只看已收藏","回听这一整段","外观","搜索","搜索语音记录","收藏这一整段","本地模型","用户反馈","编辑这段文字","语音档案","输入与快捷键","麦克风"]
+NATIVE_UI_SETTINGS_INSPECT ["12:12","12:16","2026年11月25日","Saytile","Saytile UI Review archive","archive.favorite.886E46EF-3DDE-4130-8C44-BDC2F245BF62","archive.favorite.9CA0894E-56A6-4335-97A7-28936931DB6F","archive.favorite.D7EEA20D-9054-4224-8786-9CA74C6C4A78","archive.favorites","archive.includeUntranscribed","archive.play.D7EEA20D-9054-4224-8786-9CA74C6C4A78","archive.text.886E46EF-3DDE-4130-8C44-BDC2F245BF62","archive.text.9CA0894E-56A6-4335-97A7-28936931DB6F","archive.text.D7EEA20D-9054-4224-8786-9CA74C6C4A78","archive.time.1","archive.time.3","magnifyingglass","settings.page.about","settings.page.appearance","settings.page.archive","settings.page.cloud","settings.page.feedback","settings.page.input","settings.page.models","settings.page.speech","settings.page.storage","workspace.brand","云端服务","关于","包括未转写记录","原音与存储","取消这一段的收藏","只看已收藏","回听这一整段","外观","搜索","搜索语音记录","收藏这一整段","本地模型","用户反馈","编辑这段文字","语音档案","输入与快捷键","麦克风"]
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1440,"height_points":720,"name":"archive-reading","width_pixels":2080,"width_points":1040}
+NATIVE_UI_CONTROL_FRAME [982,254,36,32]
+WORKSPACE_MOUSE_EDGE archive.favorites side=right target=36.0x32.0
+NATIVE_ARCHIVE_PARAGRAPH full_text=true height=110.0
+NATIVE_UI_CONTROL_FRAME [239,372,713,110]
+WORKSPACE_MOUSE_EDGE archive.text.D7EEA20D-9054-4224-8786-9CA74C6C4A78 side=left target=713.0x110.0
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1440,"height_points":720,"name":"archive-editing","width_pixels":2080,"width_points":1040}
+ARCHIVE_READING_PASS two natural sessions; native inline change committed to its original record
+NATIVE_UI_AXPRESS archive.play.D7EEA20D-9054-4224-8786-9CA74C6C4A78 fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS archive.play.D7EEA20D-9054-4224-8786-9CA74C6C4A78 fixture_pid=87937 foreground_unchanged=true
+UI_CONTROL_PASS archive row plays and stops its own original while reading
+NATIVE_UI_AXPRESS archive.favorites fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS archive.includeUntranscribed fixture_pid=87937 foreground_unchanged=true
+ARCHIVE_EDITOR_PASS empty paragraph, accepted IME, UTF-16 selection, private copy/cut/paste, durable undo/redo, Tab and reverse Tab
+NATIVE_UI_AXPRESS archive.includeUntranscribed fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_CONTROL_FRAME [988,372,30,28]
+WORKSPACE_MOUSE_EDGE archive.favorite.9CA0894E-56A6-4335-97A7-28936931DB6F side=right target=30.0x28.0
+WORKSPACE_STAR_ID 9CA0894E-56A6-4335-97A7-28936931DB6F
+NATIVE_UI_CONTROL_FRAME [982,254,36,32]
+WORKSPACE_MOUSE_EDGE archive.favorites side=left target=36.0x32.0
+NATIVE_ARCHIVE_VERSIONS own_paragraph_menu=true
+NATIVE_UI_AXPRESS archive.detailFavorite fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_CONTROL_FRAME [982,254,36,32]
+WORKSPACE_MOUSE_EDGE archive.favorites side=right target=36.0x32.0
+NATIVE_ARCHIVE_VERSIONS own_paragraph_menu=true
+NATIVE_UI_AXPRESS archive.detailFavorite fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS 返回记录列表 fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_CONTROL_FRAME [10,378,144,34]
+WORKSPACE_MOUSE_EDGE settings.page.speech side=right target=144.0x34.0
+NATIVE_UI_SETTINGS_INSPECT ["Saytile","Saytile UI Review archive","settings.inputDevice","settings.page.about","settings.page.appearance","settings.page.archive","settings.page.cloud","settings.page.feedback","settings.page.input","settings.page.models","settings.page.speech","settings.page.storage","settings.rememberStandby","workspace.brand","云端服务","关于","原音与存储","只在上次已开启收音时恢复。手动暂停或退出后，需要再次开启。","外观","已允许","本地模型","用户反馈","语音档案","输入与快捷键","输入设备","重新打开时恢复待命","麦克风","麦克风权限"]
+NATIVE_UI_CONTROL_FRAME [10,306,144,34]
+WORKSPACE_MOUSE_EDGE settings.page.archive side=left target=144.0x34.0
+NATIVE_UI_SETTINGS_INSPECT ["12:12","12:16","2026年11月25日","Saytile","Saytile UI Review archive","archive.favorite.886E46EF-3DDE-4130-8C44-BDC2F245BF62","archive.favorite.9CA0894E-56A6-4335-97A7-28936931DB6F","archive.favorite.D7EEA20D-9054-4224-8786-9CA74C6C4A78","archive.favorites","archive.includeUntranscribed","archive.play.D7EEA20D-9054-4224-8786-9CA74C6C4A78","archive.text.886E46EF-3DDE-4130-8C44-BDC2F245BF62","archive.text.9CA0894E-56A6-4335-97A7-28936931DB6F","archive.text.D7EEA20D-9054-4224-8786-9CA74C6C4A78","archive.time.1","archive.time.3","magnifyingglass","settings.page.about","settings.page.appearance","settings.page.archive","settings.page.cloud","settings.page.feedback","settings.page.input","settings.page.models","settings.page.speech","settings.page.storage","workspace.brand","云端服务","关于","包括未转写记录","原音与存储","取消这一段的收藏","只看已收藏","回听这一整段","外观","搜索","搜索语音记录","收藏这一整段","本地模型","用户反馈","编辑这段文字","语音档案","输入与快捷键","麦克风"]
+UI_CONTROL_PASS archive filters through native control events and SQLite
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1440,"height_points":720,"name":"archive","width_pixels":2080,"width_points":1040}
+UI_CAPTURE archive 1040x720 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_AXPRESS 保存修改 fixture_pid=87937 foreground_unchanged=true
+UI_CONTROL_PASS native Save action commits immutable edit
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1440,"height_points":720,"name":"archive-detail","width_pixels":2240,"width_points":1120}
+UI_CAPTURE archive-detail 1120x720 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1140,"height_points":570,"name":"archive-detail-compact","width_pixels":2240,"width_points":1120}
+UI_CAPTURE archive-detail-compact 1120x570 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1440,"height_points":720,"name":"archive-no-results","width_pixels":2080,"width_points":1040}
+UI_CAPTURE archive-no-results 1040x720 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":520,"height_points":260,"name":"panel-ai-review","width_pixels":720,"width_points":360}
+UI_CAPTURE panel-ai-review 360x260 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":520,"height_points":260,"name":"panel-ai-recovery","width_pixels":720,"width_points":360}
+UI_CAPTURE panel-ai-recovery 360x260 foreground_unchanged=true candidate_activated=false
+UI_STATE_PASS one transcript survives single-core processing and failure; synthetic Store runs, no providers
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_SETTINGS_INSPECT ["Saytile","Saytile UI Review settings","settings.inputDevice","settings.page.about","settings.page.appearance","settings.page.archive","settings.page.cloud","settings.page.feedback","settings.page.input","settings.page.models","settings.page.speech","settings.page.storage","settings.rememberStandby","workspace.brand","云端服务","关于","原音与存储","只在上次已开启收音时恢复。手动暂停或退出后，需要再次开启。","外观","已允许","本地模型","用户反馈","语音档案","输入与快捷键","输入设备","重新打开时恢复待命","麦克风","麦克风权限"]
+NATIVE_UI_AXPRESS settings.rememberStandby fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS settings.rememberStandby fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS settings.page.cloud fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_SETTINGS_INSPECT ["Saytile","Saytile UI Review settings","cloud.serviceInspector","hosted.code","hosted.email","hosted.upload-consent","settings.page.about","settings.page.appearance","settings.page.archive","settings.page.cloud","settings.page.feedback","settings.page.input","settings.page.models","settings.page.speech","settings.page.storage","workspace.brand","云端服务","允许将新讲话交给云端中文识别","关于","原音与存储","外观","新讲话经 Saytile 发送到阿里云识别，文字交给 OpenAI 核对。关闭后使用本机识别，历史原音保留在本机。","未登录 · 本机识别可用","本地模型","用户反馈","电子邮箱","登录","登录状态","获取验证码","语音授权","语音档案","账户","输入与快捷键","邮件验证码","配置服务","麦克风"]
+NATIVE_UI_AXPRESS cloud.serviceInspector fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_CLOUD_SELECTION 自带 API via=NSMenu.performActionForItem
+NATIVE_UI_SETTINGS_INSPECT ["AI 识别","Saytile","Saytile Cloud","Saytile UI Review settings","cloud.serviceInspector","cloud.useBYOK","menuAction:","recognition.apply","recognition.asrOverride","recognition.automaticRecovery","recognition.configureServices","recognition.languagePreference","recognition.topicContext","settings.page.about","settings.page.appearance","settings.page.archive","settings.page.cloud","settings.page.feedback","settings.page.input","settings.page.models","settings.page.speech","settings.page.storage","workspace.brand","云端服务","仅将文字发送给 OpenAI，费用由你的 API 账户承担。","以前仅在本机处理的原音仍在本机恢复。更换服务、地区或密钥不会自动上传旧档案；需要时可在档案中选择用云端重新识别。","使用自带 API 识别新讲话","保存并应用识别设置","修改在保存并应用后生效；移除密钥会立即停止相关云端运行。","关于","原音与存储","外观","已准备 0 \/ 1 项服务","当前话题或术语提示（可选）","服务用量记录","本地模型","本机识别的文字核对","每项服务独立授权。启用后，语音或必要候选文字将交给所选服务处理，费用由你的服务商账户承担。","用 GPT-6 核对新讲话的文字","用户反馈","自带 API","识别语言","语音档案","语音模型","输入与快捷键","连接中断后从已保存原音自动恢复","连接识别服务","配置服务","麦克风"]
+NATIVE_UI_AXPRESS settings.page.models fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_SETTINGS_INSPECT ["Apple SpeechAnalyzer","Apple SpeechAnalyzer，固定使用","Apple 中文识别","Qwen3-ASR 0.6B · MLX 4-bit","Saytile","Saytile UI Review settings","Streaming Paraformer INT8","models.nextLocalEngine","models.readiness","models.use.apple","settings.page.about","settings.page.appearance","settings.page.archive","settings.page.cloud","settings.page.feedback","settings.page.input","settings.page.models","settings.page.speech","settings.page.storage","workspace.brand","下一段本机识别","下载","下载大小 237.2 MB","下载大小 712.8 MB","中文识别已就绪 · 在设备上处理","云端服务","关于","原音与存储","外观","本地模型","本机识别使用的模型","本机识别模型已就绪。","用户反馈","语音档案","输入与快捷键","麦克风","默认中文模型；只需下载一次，普通更新会保留。下载和准备不申请麦克风权限。"]
+NATIVE_UI_AXPRESS settings.page.speech fixture_pid=87937 foreground_unchanged=true
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1480,"height_points":740,"name":"settings","width_pixels":1300,"width_points":650}
+UI_CAPTURE settings 650x740 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1140,"height_points":570,"name":"settings-compact","width_pixels":1120,"width_points":560}
+UI_CAPTURE settings-compact 560x570 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_SETTINGS_INSPECT ["Apple SpeechAnalyzer","Apple SpeechAnalyzer，固定使用","Apple 中文识别","Qwen3-ASR 0.6B · MLX 4-bit","Saytile","Saytile UI Review settings-models","Streaming Paraformer INT8","models.nextLocalEngine","models.readiness","models.use.apple","settings.page.about","settings.page.appearance","settings.page.archive","settings.page.cloud","settings.page.feedback","settings.page.input","settings.page.models","settings.page.speech","settings.page.storage","workspace.brand","下一段本机识别","下载","下载大小 237.2 MB","下载大小 712.8 MB","中文识别已就绪 · 在设备上处理","云端服务","关于","原音与存储","外观","本地模型","本机识别使用的模型","本机识别模型已就绪。","用户反馈","语音档案","输入与快捷键","麦克风","默认中文模型；只需下载一次，普通更新会保留。下载和准备不申请麦克风权限。"]
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1480,"height_points":740,"name":"settings-models","width_pixels":1300,"width_points":650}
+UI_CAPTURE settings-models 650x740 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_SETTINGS_INSPECT ["Saytile","Saytile UI Review settings-hosted","cloud.serviceInspector","hosted.code","hosted.email","hosted.upload-consent","settings.page.about","settings.page.appearance","settings.page.archive","settings.page.cloud","settings.page.feedback","settings.page.input","settings.page.models","settings.page.speech","settings.page.storage","workspace.brand","云端服务","允许将新讲话交给云端中文识别","关于","原音与存储","外观","新讲话经 Saytile 发送到阿里云识别，文字交给 OpenAI 核对。关闭后使用本机识别，历史原音保留在本机。","未登录 · 本机识别可用","本地模型","用户反馈","电子邮箱","登录","登录状态","获取验证码","语音授权","语音档案","账户","输入与快捷键","邮件验证码","配置服务","麦克风"]
+NATIVE_UI_AXPRESS hosted.upload-consent fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS hosted.upload-consent fixture_pid=87937 foreground_unchanged=true
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1480,"height_points":740,"name":"settings-hosted","width_pixels":1300,"width_points":650}
+UI_CAPTURE settings-hosted 650x740 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_SETTINGS_INSPECT ["AI 识别","Saytile","Saytile UI Review settings-byok","cloud.serviceInspector","cloud.useBYOK","recognition.apply","recognition.asrOverride","recognition.automaticRecovery","recognition.configureServices","recognition.languagePreference","recognition.topicContext","settings.page.about","settings.page.appearance","settings.page.archive","settings.page.cloud","settings.page.feedback","settings.page.input","settings.page.models","settings.page.speech","settings.page.storage","workspace.brand","云端服务","仅将文字发送给 OpenAI，费用由你的 API 账户承担。","以前仅在本机处理的原音仍在本机恢复。更换服务、地区或密钥不会自动上传旧档案；需要时可在档案中选择用云端重新识别。","使用自带 API 识别新讲话","保存并应用识别设置","修改在保存并应用后生效；移除密钥会立即停止相关云端运行。","关于","原音与存储","外观","已准备 0 \/ 1 项服务","当前话题或术语提示（可选）","服务用量记录","本地模型","本机识别的文字核对","每项服务独立授权。启用后，语音或必要候选文字将交给所选服务处理，费用由你的服务商账户承担。","用 GPT-6 核对新讲话的文字","用户反馈","识别语言","语音档案","语音模型","输入与快捷键","连接中断后从已保存原音自动恢复","连接识别服务","配置服务","麦克风"]
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1480,"height_points":740,"name":"settings-byok","width_pixels":1300,"width_points":650}
+UI_CAPTURE settings-byok 650x740 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_AXPRESS recognition.configureServices fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS connection.authorizeCheck fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.apply fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXSETVALUE recognition.topicContext fixture_pid=87937 foreground_unchanged=true
+UI_KEYBOARD_ISOLATION before-field-edit can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-field-edit can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_FIELD_EDIT recognition.topicContext via owned NSTextView delegate; no global key events
+NATIVE_UI_AXPRESS recognition.apply fixture_pid=87937 foreground_unchanged=true
+UI_CONTROL_PASS recognition settings: unverified cloud disabled, explicit cost authorization, offline apply and native text edit
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1680,"height_points":840,"name":"ai-controls","width_pixels":1300,"width_points":650}
+UI_CAPTURE ai-controls 650x840 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1680,"height_points":840,"name":"ai-services","width_pixels":1300,"width_points":650}
+UI_CAPTURE ai-services 650x840 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_AXSETVALUE recognition.model.a71e0001-0000-4000-8000-000000000001.workspace fixture_pid=87937 foreground_unchanged=true
+UI_KEYBOARD_ISOLATION before-field-edit can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-field-edit can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000001.workspace via owned NSTextView delegate; no global key events
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.consent fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.consent fixture_pid=87937 foreground_unchanged=true
+UI_CONTROL_PASS single selected ASR + GPT setup: workspace and per-service consent; no model toggle, key read or cloud request
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1480,"height_points":740,"name":"ai-chinese-keychain","width_pixels":1300,"width_points":650}
+UI_CAPTURE ai-chinese-keychain 650x740 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_AXPRESS connectionSetup.finish fixture_pid=87937 foreground_unchanged=true
+UI_CONTROL_PASS isolated setup rejects unfinished configuration through native Finish action; no export or provider request
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1680,"height_points":840,"name":"connection-setup","width_pixels":1300,"width_points":650}
+UI_CAPTURE connection-setup 650x840 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1680,"height_points":840,"name":"connection-first-empty","width_pixels":1300,"width_points":650}
+UI_CAPTURE connection-first-empty 650x840 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_AXPRESS recognition.configureServices fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000004.header fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXSETVALUE recognition.model.a71e0001-0000-4000-8000-000000000004.secret fixture_pid=87937 foreground_unchanged=true
+UI_KEYBOARD_ISOLATION before-field-edit can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-field-edit can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000004.secret via owned NSTextView delegate; no global key events
+NATIVE_UI_SECURE_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000004.secret fixture credential only; value omitted
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000004.saveKey fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000004.consent fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000004.header fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.header fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXSETVALUE recognition.model.a71e0001-0000-4000-8000-000000000001.workspace fixture_pid=87937 foreground_unchanged=true
+UI_KEYBOARD_ISOLATION before-field-edit can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-field-edit can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000001.workspace via owned NSTextView delegate; no global key events
+NATIVE_UI_AXSETVALUE recognition.model.a71e0001-0000-4000-8000-000000000001.secret fixture_pid=87937 foreground_unchanged=true
+UI_KEYBOARD_ISOLATION before-field-edit can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-field-edit can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000001.secret via owned NSTextView delegate; no global key events
+NATIVE_UI_SECURE_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000001.secret fixture credential only; value omitted
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.saveKey fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.consent fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.header fixture_pid=87937 foreground_unchanged=true
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1680,"height_points":840,"name":"connection-first-ready","width_pixels":1300,"width_points":650}
+UI_STATE_CAPTURE connection-first-ready after native secure fields/save/consent; no network
+NATIVE_UI_AXPRESS connection.checkCosts fixture_pid=87937 foreground_unchanged=true
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1680,"height_points":840,"name":"connection-first-costs","width_pixels":1300,"width_points":650}
+UI_STATE_CAPTURE connection-first-costs after native disclosure action
+NATIVE_UI_AXPRESS connection.checkCosts fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS connection.authorizeCheck fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS connection.startCheck fixture_pid=87937 foreground_unchanged=true
+UI_CONTROL_PASS first connection via native Workspace/two selected secure fields/save/consent/cost/start; TEST_ONLY injected receipt, no live verification
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1680,"height_points":840,"name":"connection-first-success","width_pixels":1300,"width_points":650}
+UI_CAPTURE connection-first-success 650x840 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_AXPRESS connection.authorizeCheck fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS connection.startCheck fixture_pid=87937 foreground_unchanged=true
+UI_CONTROL_PASS native retry displays isolated service failure and keeps cloud disabled
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1680,"height_points":840,"name":"connection-first-failure","width_pixels":1300,"width_points":650}
+UI_CAPTURE connection-first-failure 650x840 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_AXPRESS connection.authorizeCheck fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS connection.startCheck fixture_pid=87937 foreground_unchanged=true
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1680,"height_points":840,"name":"connection-first-progress","width_pixels":1300,"width_points":650}
+UI_STATE_CAPTURE connection-first-progress from injected backend progress through actual AppModel
+NATIVE_UI_AXPRESS connection.cancelCheck fixture_pid=87937 foreground_unchanged=true
+UI_CONTROL_PASS native cancel closes injected verification and settles all service cards
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1680,"height_points":840,"name":"connection-first-cancelled","width_pixels":1300,"width_points":650}
+UI_CAPTURE connection-first-cancelled 650x840 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_PANEL_INSPECT {"controls":[{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":false,"enabled":true,"height":26,"identifier":"panel.copy","names":["复制当前文字","右键或打开上下文菜单可查看更多操作","panel.copy"],"role":"AXButton","subrole":"","value":"","width":30,"x":10,"y":924},{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":true,"enabled":true,"height":26,"identifier":"panel.capture","names":["开始收音","开始收音","panel.capture"],"role":"AXButton","subrole":"","value":"暂停","width":54,"x":276.5,"y":924}],"native_scrollbar_parts":[],"obsolete_state_identifiers":[],"static_state_text":[],"transcript_areas":[{"ancestor_roles":["AXScrollArea","AXGroup","AXWindow"],"capture_action":false,"enabled":false,"height":202,"identifier":"panel.transcript","names":["当前转写文字","panel.transcript"],"role":"AXTextArea","subrole":"","value":"","width":321.5,"x":13,"y":720}],"visited_nodes":7,"window_height":272,"window_width":340,"window_x":0,"window_y":684}
+UI_BOTTOM_CONTROLS_PASS state=暂停 panel_buttons=2 left_copy=true right_voice_capsule=true visible_status_labels=0 has_text=false
+NATIVE_UI_AXPRESS panel.copy fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_CONTEXT_ITEMS ["panel.edit","panel.latest","panel.more.bind","panel.more.clear","panel.more.copy","panel.more.direct","panel.more.free","panel.more.hide","panel.more.insert","panel.more.settings"]
+NATIVE_UI_MENU_SELECT panel.more.settings via=AXShowMenu menu=panel.copy fixture_pid=87937 foreground_unchanged=true
+UI_EMPTY_PANEL_MENU_PASS empty copy is a no-op; its actual context menu opens settings
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":480,"height_points":240,"name":"panel-capture-initial","width_pixels":680,"width_points":340}
+UI_CAPTURE panel-capture-initial 340x240 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_AXPRESS panel.capture fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_PANEL_INSPECT {"controls":[{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":false,"enabled":true,"height":26,"identifier":"panel.copy","names":["复制当前文字","右键或打开上下文菜单可查看更多操作","panel.copy"],"role":"AXButton","subrole":"","value":"","width":30,"x":10,"y":924},{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":true,"enabled":true,"height":26,"identifier":"panel.capture","names":["暂停收音","暂停收音","panel.capture"],"role":"AXButton","subrole":"","value":"待命","width":54,"x":276.5,"y":924}],"native_scrollbar_parts":[],"obsolete_state_identifiers":[],"static_state_text":[],"transcript_areas":[{"ancestor_roles":["AXScrollArea","AXGroup","AXWindow"],"capture_action":false,"enabled":false,"height":202,"identifier":"panel.transcript","names":["当前转写文字","panel.transcript"],"role":"AXTextArea","subrole":"","value":"","width":321.5,"x":13,"y":720}],"visited_nodes":7,"window_height":272,"window_width":340,"window_x":0,"window_y":684}
+UI_BOTTOM_CONTROLS_PASS state=待命 panel_buttons=2 left_copy=true right_voice_capsule=true visible_status_labels=0 has_text=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":480,"height_points":240,"name":"panel-capture-listening","width_pixels":680,"width_points":340}
+NATIVE_UI_PANEL_INSPECT {"controls":[{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":false,"enabled":true,"height":26,"identifier":"panel.copy","names":["复制当前文字","右键或打开上下文菜单可查看更多操作","panel.copy"],"role":"AXButton","subrole":"","value":"","width":30,"x":10,"y":924},{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":true,"enabled":true,"height":26,"identifier":"panel.capture","names":["暂停收音","暂停收音","panel.capture"],"role":"AXButton","subrole":"","value":"正在识别","width":54,"x":276.5,"y":924}],"native_scrollbar_parts":[],"obsolete_state_identifiers":[],"static_state_text":[],"transcript_areas":[{"ancestor_roles":["AXScrollArea","AXGroup","AXWindow"],"capture_action":false,"enabled":false,"height":202,"identifier":"panel.transcript","names":["当前转写文字","panel.transcript"],"role":"AXTextArea","subrole":"","value":"不要支付15","width":321.5,"x":13,"y":720}],"visited_nodes":7,"window_height":272,"window_width":340,"window_x":0,"window_y":684}
+UI_BOTTOM_CONTROLS_PASS state=正在识别 panel_buttons=2 left_copy=true right_voice_capsule=true visible_status_labels=0 has_text=true
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":480,"height_points":240,"name":"panel-capture-speaking","width_pixels":680,"width_points":340}
+NATIVE_UI_PANEL_INSPECT {"controls":[{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":false,"enabled":true,"height":26,"identifier":"panel.copy","names":["复制当前文字","右键或打开上下文菜单可查看更多操作","panel.copy"],"role":"AXButton","subrole":"","value":"","width":30,"x":10,"y":924},{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":true,"enabled":true,"height":26,"identifier":"panel.capture","names":["暂停收音","暂停收音","panel.capture"],"role":"AXButton","subrole":"","value":"待命","width":54,"x":276.5,"y":924}],"native_scrollbar_parts":[],"obsolete_state_identifiers":[],"static_state_text":[],"transcript_areas":[{"ancestor_roles":["AXScrollArea","AXGroup","AXWindow"],"capture_action":false,"enabled":false,"height":202,"identifier":"panel.transcript","names":["当前转写文字","panel.transcript"],"role":"AXTextArea","subrole":"","value":"不要支付15元。","width":321.5,"x":13,"y":720}],"visited_nodes":7,"window_height":272,"window_width":340,"window_x":0,"window_y":684}
+UI_BOTTOM_CONTROLS_PASS state=待命 panel_buttons=2 left_copy=true right_voice_capsule=true visible_status_labels=0 has_text=true
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":480,"height_points":240,"name":"panel-capture-vad-ended","width_pixels":680,"width_points":340}
+NATIVE_UI_PANEL_INSPECT {"controls":[{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":false,"enabled":true,"height":26,"identifier":"panel.copy","names":["复制当前文字","右键或打开上下文菜单可查看更多操作","panel.copy"],"role":"AXButton","subrole":"","value":"","width":30,"x":10,"y":924},{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":true,"enabled":true,"height":26,"identifier":"panel.capture","names":["暂停收音","暂停收音","panel.capture"],"role":"AXButton","subrole":"","value":"正在识别","width":54,"x":276.5,"y":924}],"native_scrollbar_parts":[],"obsolete_state_identifiers":[],"static_state_text":[],"transcript_areas":[{"ancestor_roles":["AXScrollArea","AXGroup","AXWindow"],"capture_action":false,"enabled":false,"height":202,"identifier":"panel.transcript","names":["当前转写文字","panel.transcript"],"role":"AXTextArea","subrole":"","value":"不要支付15元，Swift API 保留原文。","width":321.5,"x":13,"y":720}],"visited_nodes":7,"window_height":272,"window_width":340,"window_x":0,"window_y":684}
+UI_BOTTOM_CONTROLS_PASS state=正在识别 panel_buttons=2 left_copy=true right_voice_capsule=true visible_status_labels=0 has_text=true
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":480,"height_points":240,"name":"panel-capture-next-speech","width_pixels":680,"width_points":340}
+NATIVE_UI_PANEL_INSPECT {"controls":[{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":false,"enabled":true,"height":26,"identifier":"panel.copy","names":["复制当前文字","右键或打开上下文菜单可查看更多操作","panel.copy"],"role":"AXButton","subrole":"","value":"","width":30,"x":10,"y":924},{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":true,"enabled":true,"height":26,"identifier":"panel.capture","names":["暂停收音","暂停收音","panel.capture"],"role":"AXButton","subrole":"","value":"待命","width":54,"x":276.5,"y":924}],"native_scrollbar_parts":[],"obsolete_state_identifiers":[],"static_state_text":[],"transcript_areas":[{"ancestor_roles":["AXScrollArea","AXGroup","AXWindow"],"capture_action":false,"enabled":false,"height":202,"identifier":"panel.transcript","names":["当前转写文字","panel.transcript"],"role":"AXTextArea","subrole":"","value":"不要支付15元，Swift API 保留原文。","width":321.5,"x":13,"y":720}],"visited_nodes":7,"window_height":272,"window_width":340,"window_x":0,"window_y":684}
+UI_BOTTOM_CONTROLS_PASS state=待命 panel_buttons=2 left_copy=true right_voice_capsule=true visible_status_labels=0 has_text=true
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":480,"height_points":240,"name":"panel-capture-fusion-pending","width_pixels":680,"width_points":340}
+NATIVE_UI_AXPRESS panel.capture fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_PANEL_INSPECT {"controls":[{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":false,"enabled":true,"height":26,"identifier":"panel.copy","names":["复制当前文字","右键或打开上下文菜单可查看更多操作","panel.copy"],"role":"AXButton","subrole":"","value":"","width":30,"x":10,"y":924},{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":true,"enabled":true,"height":26,"identifier":"panel.capture","names":["继续收音","继续收音","panel.capture"],"role":"AXButton","subrole":"","value":"暂停","width":54,"x":276.5,"y":924}],"native_scrollbar_parts":[],"obsolete_state_identifiers":[],"static_state_text":[],"transcript_areas":[{"ancestor_roles":["AXScrollArea","AXGroup","AXWindow"],"capture_action":false,"enabled":false,"height":202,"identifier":"panel.transcript","names":["当前转写文字","panel.transcript"],"role":"AXTextArea","subrole":"","value":"不要支付15元，Swift API 保留原文。","width":321.5,"x":13,"y":720}],"visited_nodes":7,"window_height":272,"window_width":340,"window_x":0,"window_y":684}
+UI_BOTTOM_CONTROLS_PASS state=暂停 panel_buttons=2 left_copy=true right_voice_capsule=true visible_status_labels=0 has_text=true
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":480,"height_points":240,"name":"panel-capture-paused","width_pixels":680,"width_points":340}
+UI_VAD_END_PASS running ASR/fusion permit standby; late final updates one transcript; old callbacks preserve new speech and manual pause
+NATIVE_UI_AXPRESS panel.capture fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_PANEL_INSPECT {"controls":[{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":false,"enabled":true,"height":26,"identifier":"panel.copy","names":["复制当前文字","右键或打开上下文菜单可查看更多操作","panel.copy"],"role":"AXButton","subrole":"","value":"","width":30,"x":10,"y":924},{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":true,"enabled":true,"height":26,"identifier":"panel.capture","names":["暂停收音","暂停收音","panel.capture"],"role":"AXButton","subrole":"","value":"待命","width":54,"x":276.5,"y":924}],"native_scrollbar_parts":[],"obsolete_state_identifiers":[],"static_state_text":[],"transcript_areas":[{"ancestor_roles":["AXScrollArea","AXGroup","AXWindow"],"capture_action":false,"enabled":false,"height":202,"identifier":"panel.transcript","names":["当前转写文字","panel.transcript"],"role":"AXTextArea","subrole":"","value":"不要支付15元，Swift API 保留原文。","width":321.5,"x":13,"y":720}],"visited_nodes":7,"window_height":272,"window_width":340,"window_x":0,"window_y":684}
+UI_BOTTOM_CONTROLS_PASS state=待命 panel_buttons=2 left_copy=true right_voice_capsule=true visible_status_labels=0 has_text=true
+UI_NATIVE_CAPTURE_ACK paused_to_listening starts=2; actual capture button, injected microphone boundary
+NATIVE_UI_AXPRESS panel.capture fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_PANEL_INSPECT {"controls":[{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":false,"enabled":true,"height":26,"identifier":"panel.copy","names":["复制当前文字","右键或打开上下文菜单可查看更多操作","panel.copy"],"role":"AXButton","subrole":"","value":"","width":30,"x":10,"y":924},{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":true,"enabled":true,"height":26,"identifier":"panel.capture","names":["取消开启","取消开启","panel.capture"],"role":"AXButton","subrole":"","value":"正在准备","width":54,"x":276.5,"y":924}],"native_scrollbar_parts":[],"obsolete_state_identifiers":[],"static_state_text":[],"transcript_areas":[{"ancestor_roles":["AXScrollArea","AXGroup","AXWindow"],"capture_action":false,"enabled":false,"height":202,"identifier":"panel.transcript","names":["当前转写文字","panel.transcript"],"role":"AXTextArea","subrole":"","value":"不要支付15元，Swift API 保留原文。","width":321.5,"x":13,"y":720}],"visited_nodes":7,"window_height":272,"window_width":340,"window_x":0,"window_y":684}
+UI_BOTTOM_CONTROLS_PASS state=正在准备 panel_buttons=2 left_copy=true right_voice_capsule=true visible_status_labels=0 has_text=true
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":480,"height_points":240,"name":"panel-capture-starting","width_pixels":680,"width_points":340}
+NATIVE_UI_AXPRESS panel.capture fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_PANEL_INSPECT {"controls":[{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":false,"enabled":true,"height":26,"identifier":"panel.copy","names":["复制当前文字","右键或打开上下文菜单可查看更多操作","panel.copy"],"role":"AXButton","subrole":"","value":"","width":30,"x":10,"y":924},{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":true,"enabled":true,"height":26,"identifier":"panel.capture","names":["恢复收音","恢复收音","panel.capture"],"role":"AXButton","subrole":"","value":"需要恢复，合成设备暂不可用，原音与文字仍保留。","width":54,"x":276.5,"y":924}],"native_scrollbar_parts":[],"obsolete_state_identifiers":[],"static_state_text":[],"transcript_areas":[{"ancestor_roles":["AXScrollArea","AXGroup","AXWindow"],"capture_action":false,"enabled":false,"height":202,"identifier":"panel.transcript","names":["当前转写文字","panel.transcript"],"role":"AXTextArea","subrole":"","value":"不要支付15元，Swift API 保留原文。","width":321.5,"x":13,"y":720}],"visited_nodes":7,"window_height":272,"window_width":340,"window_x":0,"window_y":684}
+UI_BOTTOM_CONTROLS_PASS state=需要恢复，合成设备暂不可用，原音与文字仍保留。 panel_buttons=2 left_copy=true right_voice_capsule=true visible_status_labels=0 has_text=true
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_SETTINGS_INSPECT ["Saytile","Saytile UI Review settings-interrupted","settings.captureDetail","settings.inputDevice","settings.notice","settings.page.about","settings.page.appearance","settings.page.archive","settings.page.cloud","settings.page.feedback","settings.page.input","settings.page.models","settings.page.speech","settings.page.storage","settings.rememberStandby","workspace.brand","云端服务","关于","原音与存储","只在上次已开启收音时恢复。手动暂停或退出后，需要再次开启。","合成操作提示","合成设备暂不可用，原音与文字仍保留。","外观","已允许","本地模型","用户反馈","语音档案","输入与快捷键","输入设备","重新打开时恢复待命","麦克风","麦克风权限"]
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1480,"height_points":740,"name":"settings-interrupted","width_pixels":1300,"width_points":650}
+UI_CAPTURE settings-interrupted 650x740 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":480,"height_points":240,"name":"panel-capture-interrupted","width_pixels":680,"width_points":340}
+NATIVE_UI_AXPRESS panel.capture fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS panel.capture fixture_pid=87937 foreground_unchanged=true
+UI_CONTROL_PASS bottom-right voice capsule handles start, speech, VAD end, pause, resume, cancel and recovery with an injected audio boundary
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":480,"height_points":240,"name":"panel-capture-controls","width_pixels":680,"width_points":340}
+UI_CAPTURE panel-capture-controls 340x240 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_NATIVE_UNICODE_PASS Store-driven NFD to NFC to NFD preserves exact UTF-16 text and length
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":960,"height_points":480,"name":"panel-selection-held","width_pixels":720,"width_points":360}
+NATIVE_UI_AXPRESS panel.copy fixture_pid=87937 foreground_unchanged=true
+UI_PRIVATE_COPY_PASS exact selected NFD/emoji copied to unique pasteboard; feedback settled; capture and held selection preserved
+NATIVE_UI_CONTEXT_ITEMS ["panel.menu.bind","panel.menu.clear","panel.menu.copy","panel.menu.direct","panel.menu.edit","panel.menu.free","panel.menu.hide","panel.menu.insert","panel.menu.latest","panel.menu.settings"]
+NATIVE_UI_MENU_SELECT panel.menu.latest via=AXShowMenu menu=panel.transcript fixture_pid=87937 foreground_unchanged=true
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":960,"height_points":480,"name":"panel-latest","width_pixels":720,"width_points":360}
+NATIVE_UI_AXPRESS panel.copy fixture_pid=87937 foreground_unchanged=true
+UI_PRIVATE_COPY_PASS current full text copied to unique pasteboard; feedback settled; capture preserved
+NATIVE_UI_CONTEXT_ITEMS ["panel.menu.bind","panel.menu.clear","panel.menu.copy","panel.menu.direct","panel.menu.edit","panel.menu.free","panel.menu.hide","panel.menu.insert","panel.menu.latest","panel.menu.settings"]
+NATIVE_UI_MENU_SELECT panel.menu.latest via=AXShowMenu menu=panel.transcript fixture_pid=87937 foreground_unchanged=true
+UI_NATIVE_NEAR_BOTTOM_PASS two-point upward scroll retains position; explicitly reaching the bottom resumes following
+UI_NATIVE_TEXT_PASS actual read-only NSTextView selection, Store-driven updates, manual scroll retention and explicit latest; no focus or key events
+UI_CONTROL_PASS native context-menu latest resumes one continuous transcript after selection and scrolling
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_PANEL_INSPECT {"controls":[{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":false,"enabled":true,"height":26,"identifier":"panel.copy","names":["复制当前文字","右键或打开上下文菜单可查看更多操作","panel.copy"],"role":"AXButton","subrole":"","value":"","width":30,"x":10,"y":924},{"ancestor_roles":["AXGroup","AXWindow"],"capture_action":true,"enabled":true,"height":26,"identifier":"panel.capture","names":["继续收音","继续收音","panel.capture"],"role":"AXButton","subrole":"","value":"暂停","width":54,"x":296.5,"y":924}],"native_scrollbar_parts":[],"obsolete_state_identifiers":[],"static_state_text":[],"transcript_areas":[{"ancestor_roles":["AXScrollArea","AXGroup","AXWindow"],"capture_action":false,"enabled":false,"height":2742,"identifier":"panel.transcript","names":["当前转写文字","panel.transcript"],"role":"AXTextArea","subrole":"","value":"新增的合成开头只调整上方排版，不应改变正在阅读的位置。\n第1行：更新后仍保留完整表达😀和原有否定词，不要支付15元。Swift API café 修订😄。\n第2行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第3行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第4行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第5行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第6行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第7行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第8行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第9行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第10行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第11行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第12行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第13行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第14行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第15行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第16行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第17行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第18行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第19行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第20行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第21行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第22行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第23行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第24行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第25行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第26行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第27行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第28行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第29行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第30行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第31行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第32行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第33行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第34行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第35行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第36行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第37行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第38行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第39行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第40行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第41行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第42行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第43行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第44行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第45行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第46行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第47行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第48行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第49行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第50行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第51行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第52行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第53行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第54行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第55行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第56行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第57行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第58行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第59行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第60行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第61行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第62行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第63行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第64行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第65行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第66行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第67行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第68行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第69行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n第70行：保留完整表达和原有否定词，不要支付15元。Swift API café 😀。\n新增表达：否定、数字和术语必须保持完整。\n用户上滚阅读时继续接收的新一句。\n近底上滚仍应保留阅读位置。\n主动回到底部后继续跟随。","width":341.5,"x":13,"y":-1820}],"visited_nodes":7,"window_height":512,"window_width":360,"window_x":0,"window_y":444}
+UI_BOTTOM_CONTROLS_PASS state=暂停 panel_buttons=2 left_copy=true right_voice_capsule=true visible_status_labels=0 has_text=true
+NATIVE_UI_CONTEXT_ITEMS ["panel.menu.bind","panel.menu.clear","panel.menu.copy","panel.menu.direct","panel.menu.edit","panel.menu.free","panel.menu.hide","panel.menu.insert","panel.menu.latest","panel.menu.settings"]
+NATIVE_UI_MENU_SELECT panel.menu.edit via=AXShowMenu menu=panel.transcript fixture_pid=87937 foreground_unchanged=true
+UI_CONTROL_PASS contextual edit reaches existing archive editor with latest saved text; no second transcript or writeback path
+NATIVE_UI_CONTEXT_ITEMS ["panel.menu.bind","panel.menu.clear","panel.menu.copy","panel.menu.direct","panel.menu.edit","panel.menu.free","panel.menu.hide","panel.menu.insert","panel.menu.latest","panel.menu.settings"]
+NATIVE_UI_MENU_SELECT panel.menu.settings via=AXShowMenu menu=panel.transcript fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_CONTEXT_ITEMS ["panel.menu.bind","panel.menu.clear","panel.menu.copy","panel.menu.direct","panel.menu.edit","panel.menu.free","panel.menu.hide","panel.menu.insert","panel.menu.latest","panel.menu.settings"]
+NATIVE_UI_MENU_SELECT panel.menu.hide via=AXShowMenu menu=panel.transcript fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_CONTEXT_ITEMS ["panel.menu.bind","panel.menu.clear","panel.menu.copy","panel.menu.direct","panel.menu.edit","panel.menu.free","panel.menu.hide","panel.menu.insert","panel.menu.latest","panel.menu.settings"]
+NATIVE_UI_MENU_SELECT panel.menu.clear via=AXShowMenu menu=panel.transcript fixture_pid=87937 foreground_unchanged=true
+UI_CONTROL_PASS Transcript context menu archive/settings/hide/clear actions retain the saved text
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":960,"height_points":480,"name":"panel-long-text","width_pixels":720,"width_points":360}
+UI_CAPTURE panel-long-text 360x480 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_AXPRESS voiceEntry.open fixture_pid=87937 foreground_unchanged=true
+UI_CONTROL_PASS lightweight voice entry opens the transcript once without starting, pausing or changing capture
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":84,"height_points":42,"name":"voice-entry","width_pixels":84,"width_points":42}
+UI_CAPTURE voice-entry 42x42 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_AXPRESS settings.page.input result=page_observed_after_ax_failure no_replay=true foreground_unchanged=true
+NATIVE_UI_AXPRESS settings.floatingEntry fixture_pid=87937 foreground_unchanged=true
+NATIVE_UI_AXPRESS settings.floatingEntry fixture_pid=87937 foreground_unchanged=true
+UI_CONTROL_PASS native desktop-entry setting persists on/off only in isolated preferences and leaves capture unchanged
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1680,"height_points":840,"name":"settings-floating-entry","width_pixels":1300,"width_points":650}
+UI_CAPTURE settings-floating-entry 650x840 foreground_unchanged=true candidate_activated=false
+UI_VOICE_GLYPH_PASS finite bounded morphs; right-facing triangle, stable dot, five real-level-dependent bar paths; 71 synthetic offscreen frames
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+REFERENCE_GEOMETRY state=paused window=408x298 card=344x234 font=14.04 viewport=(45.0, 36.0, 325.5, 196.0) lines=5
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":596,"height_points":298,"name":"reference-paused","width_pixels":816,"width_points":408}
+UI_CAPTURE reference-paused 408x298 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+REFERENCE_GEOMETRY state=standby window=408x298 card=344x234 font=14.04 viewport=(45.0, 36.0, 325.5, 196.0) lines=5
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":596,"height_points":298,"name":"reference-standby","width_pixels":816,"width_points":408}
+UI_CAPTURE reference-standby 408x298 foreground_unchanged=true candidate_activated=false
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+REFERENCE_GEOMETRY state=recognizing window=408x298 card=344x234 font=14.04 viewport=(45.0, 36.0, 325.5, 196.0) lines=5
+UI_KEYBOARD_ISOLATION after-validation can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION after-interaction can_become_key=false can_become_main=false is_key=false is_main=false
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":596,"height_points":298,"name":"reference-recognizing","width_pixels":816,"width_points":408}
+UI_CAPTURE reference-recognizing 408x298 foreground_unchanged=true candidate_activated=false
+UI_REVIEW_PASS native SwiftUI attached to AppKit windows; 43 standard captures plus 3 approved-reference captures; synthetic data; no activation/microphone
+2026-11-25 12:12:35.780 Saytile[87937:24768480] !!! _NSLayoutTreeLineFragmentRectForGlyphAtIndex invalid glyph index 3282

@@ -1,0 +1,103 @@
+{
+  "product_source": "8f25ea3be642263daf22ff297f337026395840a6",
+  "build": 575,
+  "dmg_sha256": "3c346eda3b1093a3d9374faf70a176353ad09ea350a9111696a32275621af25a",
+  "dmg_bytes": 65616819,
+  "checks": {
+    "app": [
+      {
+        "command": [
+          "codesign",
+          "--verify",
+          "--deep",
+          "--strict"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "codesign",
+          "-dv",
+          "--verbose=4"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "Executable=/private/tmp/saytile-release101-575/Saytile.app/Contents/MacOS/Saytile\nIdentifier=app.saytile.mac.mandarin-candidate\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20500 size=26510 flags=0x10000(runtime) hashes=817+7 location=embedded\nVersionPlatform=1\nVersionMin=1703936\nVersionSDK=1703936\nHash type=sha256 size=32\nCandidateCDHash sha256=f43801e8ad27463305cf6557dad120368c3c10a3\nCandidateCDHashFull sha256=f43801e8ad27463305cf6557dad120368c3c10a343cbc4b2b5dede0029d84259\nHash choices=sha256\nCMSDigest=f43801e8ad27463305cf6557dad120368c3c10a343cbc4b2b5dede0029d84259\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=6176768\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=f43801e8ad27463305cf6557dad120368c3c10a3\nSignature size=9042\nAuthority=Developer ID Application: hongfei hao (ZB9D4T66QB)\nAuthority=Developer ID Certification Authority\nAuthority=Apple Root CA\nTimestamp=Nov 25, 2026 at 09:10:30\nInfo.plist entries=33\nTeamIdentifier=ZB9D4T66QB\nRuntime Version=26.0.0\nSealed Resources version=2 rules=13 files=40\nInternal requirements count=1 size=196\nTotal signatures=1\nChosen signature=1\n"
+      },
+      {
+        "command": [
+          "spctl",
+          "--assess",
+          "--type",
+          "execute",
+          "-vv"
+        ],
+        "exit": 3,
+        "stdout": "",
+        "stderr": "/private/tmp/saytile-release101-575/Saytile.app: rejected\nsource=Unnotarized Developer ID\norigin=Developer ID Application: hongfei hao (ZB9D4T66QB)\n"
+      },
+      {
+        "command": [
+          "xcrun",
+          "stapler",
+          "validate"
+        ],
+        "exit": 65,
+        "stdout": "Processing: /private/tmp/saytile-release101-575/Saytile.app\nSaytile.app does not have a ticket stapled to it.\n",
+        "stderr": ""
+      }
+    ],
+    "dmg": [
+      {
+        "command": [
+          "codesign",
+          "--verify",
+          "--strict"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "codesign",
+          "-dv",
+          "--verbose=4"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "Executable=/Users/hhf/Documents/GitHub/saytile/dist/1.0.1/Saytile-1.0.1-arm64.dmg\nIdentifier=Saytile-1.0.1-arm64\nFormat=disk image\nCodeDirectory v=20200 size=307 flags=0x0(none) hashes=1+6 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=275a82cc07a77a6f68739795df2b1f663192b3f0\nCandidateCDHashFull sha256=275a82cc07a77a6f68739795df2b1f663192b3f07c8a3217388d9b521dc949bb\nHash choices=sha256\nCMSDigest=275a82cc07a77a6f68739795df2b1f663192b3f07c8a3217388d9b521dc949bb\nCMSDigestType=2\nPage size=none\nCDHash=275a82cc07a77a6f68739795df2b1f663192b3f0\nSignature size=9042\nAuthority=Developer ID Application: hongfei hao (ZB9D4T66QB)\nAuthority=Developer ID Certification Authority\nAuthority=Apple Root CA\nTimestamp=Nov 25, 2026 at 09:22:14\nInfo.plist=not bound\nTeamIdentifier=ZB9D4T66QB\nSealed Resources=none\nInternal requirements count=1 size=180\nTotal signatures=1\nChosen signature=1\n"
+      },
+      {
+        "command": [
+          "spctl",
+          "--assess",
+          "--type",
+          "open",
+          "--context",
+          "context:primary-signature",
+          "-vv"
+        ],
+        "exit": 3,
+        "stdout": "",
+        "stderr": "/Users/hhf/Documents/GitHub/saytile/dist/1.0.1/Saytile-1.0.1-arm64.dmg: rejected\nsource=Unnotarized Developer ID\norigin=Developer ID Application: hongfei hao (ZB9D4T66QB)\n"
+      },
+      {
+        "command": [
+          "xcrun",
+          "stapler",
+          "validate"
+        ],
+        "exit": 65,
+        "stdout": "Processing: /Users/hhf/Documents/GitHub/saytile/dist/1.0.1/Saytile-1.0.1-arm64.dmg\nSaytile-1.0.1-arm64.dmg does not have a ticket stapled to it.\n",
+        "stderr": ""
+      }
+    ]
+  },
+  "signature": "PASS",
+  "gatekeeper": "BLOCKED_UNNOTARIZED",
+  "notarization": "BLOCKED_NO_AUTHORIZATION",
+  "securityPolicyChanged": false
+}

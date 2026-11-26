@@ -1,16 +1,27 @@
 import AppKit
 
-/// Each menu owns its action items until AppKit finishes dispatch. No global
-/// key equivalents or focus changes are required to invoke these commands.
+/// AppKit may copy contextual menu items while preparing an NSTextView menu.
+/// Keep the action target in representedObject, which travels with those copies,
+/// instead of pointing at an original menu item that a refresh can release.
 @MainActor
 final class TranscriptMenuItem: NSMenuItem {
-    private let invoke: @MainActor () -> Void
+    // NSMenuItem.copy constructs the dynamic subclass through this initializer.
+    override init(title: String, action: Selector?, keyEquivalent: String) {
+        super.init(title: title, action: action, keyEquivalent: keyEquivalent)
+    }
     init(title: String, identifier: String, action: @escaping @MainActor () -> Void) {
-        invoke = action
-        super.init(title: title, action: #selector(performCommand), keyEquivalent: "")
+        let command = TranscriptMenuCommand(action: action)
+        super.init(title: title, action: #selector(TranscriptMenuCommand.performCommand(_:)), keyEquivalent: "")
         self.identifier = .init(identifier); setAccessibilityIdentifier(identifier)
-        target = self
+        representedObject = command
+        target = command
     }
     required init(coder: NSCoder) { fatalError("TranscriptMenuItem is created programmatically") }
-    @objc private func performCommand() { invoke() }
+}
+
+@MainActor
+private final class TranscriptMenuCommand: NSObject {
+    private let invoke: @MainActor () -> Void
+    init(action: @escaping @MainActor () -> Void) { invoke = action; super.init() }
+    @objc func performCommand(_ sender: NSMenuItem) { invoke() }
 }

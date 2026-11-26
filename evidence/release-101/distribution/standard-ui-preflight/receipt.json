@@ -1,0 +1,85 @@
+{
+  "status": "NOT_RUN",
+  "reason": "Standard manual Sparkle UI requests application activation before showing its windows; current nonactivating fixture does not exercise this driver.",
+  "product_source": "73ad857442964437929819ba9965f6bcfdcefd27",
+  "version": "1.0.1",
+  "build": "574",
+  "sparkle_version": "2.10.1",
+  "sparkle_binary_sha256": "978b6e7759c9f676385fe5077c3302cc9d322021adbcaeaff45494eea64610eb",
+  "upstream_sources": [
+    {
+      "source": "Sparkle/SPUStandardUserDriver.m",
+      "tag_url": "https://github.com/sparkle-project/Sparkle/blob/2.10.1/Sparkle/SPUStandardUserDriver.m",
+      "commit_url": "https://github.com/sparkle-project/Sparkle/blob/ab7d71291238df6e0492143b120c9b696a35f603/Sparkle/SPUStandardUserDriver.m",
+      "sha256": "e8e6b1e7d6a161f4290e9066253c72f1d842f31be3322869b1950bcf1a3d8f21",
+      "tag_matches_pinned_cli_source": true,
+      "inspected_line_ranges": [
+        [
+          129,
+          134
+        ],
+        [
+          176,
+          192
+        ],
+        [
+          350,
+          446
+        ],
+        [
+          538,
+          558
+        ]
+      ]
+    },
+    {
+      "source": "Sparkle/SUUpdateAlert.m",
+      "tag_url": "https://github.com/sparkle-project/Sparkle/blob/2.10.1/Sparkle/SUUpdateAlert.m",
+      "commit_url": "https://github.com/sparkle-project/Sparkle/blob/ab7d71291238df6e0492143b120c9b696a35f603/Sparkle/SUUpdateAlert.m",
+      "sha256": "a0b534bc0141852f79ac20c46528efe9369bba3a3d784a733cc853dfc310a6cf",
+      "tag_matches_pinned_cli_source": true,
+      "inspected_line_ranges": [
+        [
+          71,
+          88
+        ],
+        [
+          112,
+          150
+        ],
+        [
+          366,
+          394
+        ],
+        [
+          487,
+          498
+        ]
+      ]
+    }
+  ],
+  "product_sources_match_final_candidate": true,
+  "product_source_sha256": {
+    "Sources/SaytileApp/AppUpdateController.swift": "ff85cccc7c14a84fbcb114ed520a042b45433bb68edd59050e1bc1f26f26313c",
+    "Sources/SaytileApp/UpdateReview.swift": "ab0a4319a384707ed54999adfa3a2cb8423ace14ebd5957c89295e013ad8e956"
+  },
+  "observations": {
+    "manual_check_requests_activation_before_checking_window": true,
+    "manual_update_alert_requests_activation_if_app_inactive": true,
+    "product_scheduled_delegate_suppresses_default_alert": true,
+    "existing_fixture_uses_custom_driver": true,
+    "existing_settings_capture_uses_nonactivating_panel": true,
+    "prohibited_policy_is_documented_to_disallow_windows_and_activation": true
+  },
+  "apple_reference": "https://developer.apple.com/documentation/appkit/nsapplication/activationpolicy-swift.enum/prohibited",
+  "sdk_header": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSRunningApplication.h:31-42",
+  "runtime_attempts": 0,
+  "focus_activation_attempted": false,
+  "standard_popup_visual_or_button_test_pass_claimed": false,
+  "product_code_changed": false,
+  "custom_driver_image_presented_as_standard_ui": false,
+  "new_testing_architecture_created": false,
+  "app_started": false,
+  "asr_started": false,
+  "remaining_scope": "Standard manual-check UI in a separate interactive macOS session with no user foreground, or one explicitly scheduled foreground acceptance; no product logic change is implied."
+}

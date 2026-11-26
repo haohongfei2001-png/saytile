@@ -255,7 +255,11 @@ actor CaptureWorker {
 
 @MainActor
 public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate {
-    @Published public private(set) var state: CaptureState = .paused
+    @Published public private(set) var state: CaptureState = .paused {
+        didSet {
+            if oldValue.isRunning != state.isRunning { updateModelStandby() }
+        }
+    }
     @Published public private(set) var level: Float = 0
     @Published public var issue: String?
     @Published public private(set) var devices: [AudioInputDevice] = []
@@ -308,6 +312,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     private var startGeneration: UInt64 = 0
     private var automaticAssetAttempted = false
     private var selectedLocalID: LocalASRID = .apple
+    private var localASRService: LocalASRService?
     private var lifecycleGate = AudioLifecycleGate()
     private var lockBridge: AudioLockEventBridge?
     private var lifecycleTask: Task<Void, Never>?
@@ -509,6 +514,11 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     }
     public func selectLocalModels(live: LocalASRID, archive: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil, onUnavailable: (@Sendable (LocalASRID) -> Void)? = nil) {
         guard live.capability != .batch else { return }
+        if let previous = localASRService, previous !== service {
+            Task { await previous.setStandbyEnabled(false) }
+        }
+        localASRService = service
+        updateModelStandby()
         if live != selectedLocalID {
             selectedLocalID = live
             automaticAssetAttempted = false
@@ -516,6 +526,15 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         }
         recognitionFactory.selectLocal(live: live, archive: archive, service: service, review: review, onUnavailable: onUnavailable)
         refreshLocalModelStatus()
+    }
+    private func updateModelStandby() {
+        guard let service = localASRService else { return }
+        Task { [weak self] in
+            guard let self else { return }
+            // Read the latest state in the main-actor task. A rapid pause/resume
+            // must not replay an obsolete captured pause after capture restarts.
+            await service.setStandbyEnabled(self.state.isRunning && !self.isShuttingDown)
+        }
     }
     public func refreshLocalModelStatus() {
         updateAvailability { [recognitionFactory] in
@@ -753,6 +772,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         startGeneration &+= 1; requestedRunning = false; playbackResume = false
         stopPlayback(); state = .paused
         await stopCapture()
+        if !state.isRunning { await localASRService?.setStandbyEnabled(false) }
     }
     private func stopCapture() async {
         if let stopTask { await stopTask.value; return }
@@ -781,6 +801,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         startGeneration &+= 1
         state = .interrupted(reason); issue = reason
         await stopCapture()
+        if !state.isRunning { await localASRService?.setStandbyEnabled(false) }
     }
     public func refreshDevices() {
         var address = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDevices, mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
@@ -1099,6 +1120,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             await retryTask?.value; await recoveryTask?.value; await lifecycleTask?.value
             await automaticAssetTask?.value; await assetTask?.value; await availabilityTask?.value
             state = .paused
+            await localASRService?.setStandbyEnabled(false)
         }
         shutdownTask = task; await task.value
     }

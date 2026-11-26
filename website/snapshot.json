@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "status": "PUBLISHED_STABLE_1_0_0_VERIFIED",
+  "status": "CANDIDATE_1_1_0_COPY_REFINEMENT_DOWNLOAD_REMAINS_1_0_0",
   "version": "R8-plus-approved-two-scenes-stable-1.0.0",
   "approval_date": "2026-11-14",
   "user_instruction": "加上这新设计的两页，然后上线吧，就是说修改现在的版本。然后修改这几页",
@@ -8,8 +8,8 @@
   "repository_directory": "website/",
   "base_main": "42499d6101fad7e974917b2f687abc07738d2c9c",
   "previous_snapshot": "reference/history/r3-snapshot.json",
-  "runtime_file_count": 15,
-  "runtime_total_bytes": 702478,
+  "runtime_file_count": 17,
+  "runtime_total_bytes": 703772,
   "runtime_files": [
     {
       "path": "assets/archive-native.png",
@@ -48,8 +48,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 25508,
-      "sha256": "8b85289048fb9d071e51953a4d663b01a44657adab50da3ca1d0f2baf2697129"
+      "bytes": 26587,
+      "sha256": "1e2f169504b7e91805122074cdb57a66b84768618066c868e62454a4822d0fae"
     },
     {
       "path": "middle.css",
@@ -85,6 +85,16 @@
       "path": "styles.css",
       "bytes": 25750,
       "sha256": "a2ae490851ee709e0ce556d12ba1554365c857d7170008fedf5699cd4a2f5da1"
+    },
+    {
+      "path": "robots.txt",
+      "bytes": 64,
+      "sha256": "13e0744245c5fe7e976de2f827694008eaf4a63a348a6a456722db890ff7cf38"
+    },
+    {
+      "path": "sitemap.xml",
+      "bytes": 151,
+      "sha256": "bddcaea4cf310f0bee094430bf4397a220fd1598089cc54a9ecdae665cec8110"
     }
   ],
   "preserved": [
@@ -119,5 +129,10 @@
     "pages_run": 45222069957,
     "public_acceptance": "PASS 25 browser checks, 15 runtime hashes, actual full DMG button download",
     "receipt": "evidence/release-100/publication/receipt.json"
+  },
+  "documentation_update": {
+    "date": "2026-11-26",
+    "scope": "Clarify local always-on expression, continuous natural paragraphs, copy-first use and optional Accessibility without changing the approved layout, styles, scripts or media. Download remains published 1.0.0 until the 1.1.0 signed package is ready.",
+    "deployment": "NOT_RUN candidate branch"
   }
 }

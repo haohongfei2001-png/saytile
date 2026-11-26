@@ -1,0 +1,15 @@
+{
+  "original_failure": "evidence/release-100/paired16/qwen-current/ascend-zh-6a23208e2c146088/visible-raw.json",
+  "original_failure_sha256": "981b342aa824c94c89abd7892955a761b961954abd5c10b8777505f0166543dc",
+  "workerReadySeconds": 1.1814003749750555,
+  "firstDecodeWallSeconds": 4.230783416656777,
+  "firstModelOutputSeconds": 5.412525124964304,
+  "firstVisibleSeconds": 5.450697374995798,
+  "modelOutputToVisibleSeconds": 0.038172250031493604,
+  "wholeProcessWorkerCPUSecondsUpperBound": 1.26,
+  "classification": "Confirmed first decode stall; low process CPU and growing footprint are consistent with deferred model/GPU work or scheduling. They do not identify the exact GPU/IO cause.",
+  "instruments": "BLOCKED: full Xcode/xctrace absent",
+  "current_sample": "startup-sample-baseline/visible-raw.json",
+  "current_sample_purpose": "Instrumented diagnosis only, not paired speed comparison",
+  "production_model_change": "NONE: no evidence to justify kernel/cache/ASR algorithm changes"
+}

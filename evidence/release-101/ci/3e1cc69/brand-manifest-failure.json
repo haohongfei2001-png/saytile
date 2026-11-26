@@ -1,0 +1,20 @@
+{
+  "status": "FAIL original preserved; source integrity manifest correction pending final CI",
+  "run_id": 45576254661,
+  "test_head": "3e1cc6961df4da01a1c52310755a7dd215ef4310",
+  "brand_assets": "PASS",
+  "integrity": {
+    "matched": 2605,
+    "total": 2610,
+    "stale_paths": [
+      "STATUS.md",
+      "Sources/SaytileKit/InputAccessibility.swift",
+      "packaging/BUILD_NUMBER",
+      "tests/SaytileKitTests/InputTests.swift",
+      "tests/fixtures/InputRoleReadProbe.swift"
+    ]
+  },
+  "cause": "Root pushed reviewed 577 changes before regenerating global SHA256SUMS snapshot. No asset changed. Original assertion correctly failed.",
+  "fix": "Run existing scripts/update-manifest.py only after reviewing/staging final source and evidence. Assertion/workflow unchanged.",
+  "raw": "brand-original-failure.log.gz"
+}

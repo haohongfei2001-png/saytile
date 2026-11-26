@@ -1,0 +1,12 @@
+{
+  "reason": "native and swift-tests never acquired hosted arm64 runner; no test steps executed",
+  "original_run": 45451928033,
+  "failed_source": "49be861",
+  "change": "Only full Swift Testing/XCTest job uses standard macos-26-intel; all commands, cases and assertions unchanged",
+  "hardware_scope": "Intel CI is full Xcode software regression, not Apple Silicon ASR performance; M5 original-rate actual product tests remain separate",
+  "cost": "public repository standard GitHub hosted runner, no larger/paid runner or plan change",
+  "sources": [
+    "https://docs.github.com/en/actions/reference/runners/github-hosted-runners",
+    "https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md"
+  ]
+}

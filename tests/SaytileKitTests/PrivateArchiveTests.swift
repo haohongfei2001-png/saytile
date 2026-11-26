@@ -185,8 +185,8 @@ extension PrivateArchiveTests {
         let t = 1_700_000_000.0
         let first = try await f.append(source, time: t, text: "第一")
         let continued = try await f.append(source, time: t+6, text: "句")
-        let next = try await f.append(source, time: t+31, text: "第二")
-        let tail = try await f.append(source, time: t+34, text: "段")
+        let next = try await f.append(source, time: t+37, text: "第二")
+        let tail = try await f.append(source, time: t+40, text: "段")
         let different = try await f.append(source, time: t+120, text: "另一组")
         let own = try await f.append(target, time: t-2, text: "本机")
         try await a.synchronize { _ in }

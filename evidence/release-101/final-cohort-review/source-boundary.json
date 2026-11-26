@@ -1,0 +1,34 @@
+{
+  "status": "PASS",
+  "checked_utc": "2026-11-24T19:16:17.224875+00:00",
+  "tested_product_source": "73ad857442964437929819ba9965f6bcfdcefd27",
+  "final_product_source": "8f25ea3be642263daf22ff297f337026395840a6",
+  "tested_build": "574",
+  "final_build": "575",
+  "unchanged_git_paths": [
+    "Sources/SaytileKit",
+    "Sources/CAudio",
+    "Sources/CSQLite",
+    "Sources/SaytileVoiceUI",
+    "Sources/RiftletFeedback",
+    "Sources/SaytileApp/AppModel.swift",
+    "Sources/SaytileApp/AppUpdateController.swift",
+    "Sources/SaytileApp/TranscriptTimelineView.swift",
+    "native/LocalASR",
+    "Package.swift",
+    "packaging/Info.plist",
+    "packaging/update-channels.json"
+  ],
+  "unchanged_git_input_tree_sha256": "22fef0e98956f5c207958b054221f44c5bd2955cb0a9fd21d7f447bcb4deccf9",
+  "complete_product_changed_paths": [
+    "Sources/SaytileApp/SettingsView.swift",
+    "packaging/BUILD_NUMBER"
+  ],
+  "product575_equivalence_receipt_sha256": "b53a39ba60465fee1cab3a4c75b3a3e376a4b529c7c54d45c92e0651db8289c2",
+  "scoring_sources_identical_to_main_worktree": {
+    "scripts/score-local-asr.py": "c8acd0be998ad36eb00d3f11a1a7291445cdad237c67414b57ccc4735382824d",
+    "research/asr-2026-11-06/scripts/score.py": "7542aebea497d0ef70b31b64a1896c19dae332dacbfd795de60b74ea3566d25d",
+    "scripts/mandarin/report-realtime-cohort.py": "3bb77f0c534ce2158a2651a24f365a3ab26a4649482d8b973aa984bf18ddbe45"
+  },
+  "scope": "Recognition, data, direct input and update controller code/resources are exact Git objects at both SHAs. The 574 recording results are not relabelled as execution of 575. Separate final 575 packaging/UI/signature/upgrade verification remains root responsibility."
+}

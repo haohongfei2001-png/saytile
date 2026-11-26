@@ -20,6 +20,14 @@ struct PCMFrameReader {
         return prefetched != nil
     }
 
+    /// A preview should use audio that has already arrived, including voice
+    /// following the capture pre-roll. This never waits for another packet and
+    /// never consumes a partial packet or crosses the bounded decode window.
+    mutating func coalescePreviewNow(samples: Int, next: Int, windowLimit: Int, maximumBacklog: Int) throws -> Bool {
+        guard samples < windowLimit, samples - next < maximumBacklog else { return false }
+        return try hasNextFrameNow()
+    }
+
     mutating func next() throws -> Data? {
         if let prefetched {
             self.prefetched = nil

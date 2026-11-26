@@ -1,0 +1,273 @@
+{
+  "version": "1.1.0",
+  "build": 578,
+  "product_source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+  "base_candidate_source": "c7b7a99478f4e33b554adf2840980b376ed38e68",
+  "branch": "pro/release-110",
+  "pull_request": "https://github.com/haohongfei2001-png/saytile/pull/57",
+  "ci": {
+    "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+    "all_jobs_passed": true,
+    "runs": [
+      {
+        "id": 45760277323,
+        "name": "native",
+        "jobs": [
+          "swift-tests",
+          "foreground",
+          "native"
+        ],
+        "conclusion": "success"
+      },
+      {
+        "id": 45760277341,
+        "name": "brand",
+        "jobs": [
+          "native-brand"
+        ],
+        "conclusion": "success"
+      },
+      {
+        "id": 45760277447,
+        "name": "design_and_website",
+        "jobs": [
+          "data-and-prototype"
+        ],
+        "conclusion": "success"
+      },
+      {
+        "id": 45760277336,
+        "name": "legacy_services",
+        "jobs": [
+          "gateway",
+          "native-gateway"
+        ],
+        "conclusion": "success"
+      }
+    ],
+    "native_ui_artifact": 15089903896,
+    "candidate_artifact": 15089853851,
+    "qwen": {
+      "artifact": 15090450433,
+      "metal_available": true,
+      "partial_events": 2,
+      "final_events": 1,
+      "final_pcm_frames": 113153,
+      "original_pcm_unchanged": true,
+      "scope": "acoustic smoke, not a latency or accuracy benchmark"
+    },
+    "full_ui": {
+      "passed": true,
+      "ax_actions": 60,
+      "native_menu_actions": 9,
+      "timeline_records": 12000,
+      "scope": "real native windows, synthetic isolated data"
+    },
+    "kernel_sleep": {
+      "status": "BLOCKED",
+      "reason": "hosted VirtualMac does not support this physical sleep acceptance"
+    }
+  },
+  "signed_candidate": {
+    "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+    "bundle_id": "app.saytile.mac.mandarin-candidate",
+    "developer_team": "ZB9D4T66QB",
+    "deep_strict_codesign": true,
+    "hardened_runtime": true,
+    "timestamped": true,
+    "ci_binary_sha256": "00516aa03ef19768b4743ded770d6ba6e76f76ba50932b5e4b62d27ecbf11ddc",
+    "signed_binary_sha256": "7cd25d7fa5672775502adcbe2c12476abec97a3ecd195fa176f66a69e58c4e98",
+    "executable_code_sha256": "789f1860cb176b2358e4039d02054abda95f172cecf869480c751e6af4f4223f",
+    "signing_changed_code": false,
+    "ci_app_unchanged": true,
+    "dmg_name": "Saytile-1.1.0-578-signed-candidate-arm64.dmg",
+    "dmg_bytes": 65698914,
+    "dmg_sha256": "4885779272eaf06cfb66432848b1f0db1259803c8bd2e2156ac2524d8e9cd268",
+    "dmg_signature_and_integrity_passed": true
+  },
+  "physical_asr": {
+    "hardware": "Apple M5, 24 GiB",
+    "protocol": "one fixed AB / BA / AB round; all six runs retained",
+    "valid_pairs": 0,
+    "status": "BLOCKED",
+    "reasons": [
+      "Existing microphone-authorization health check interrupted public file replay in both 577 and 578. 577 already had the same Developer ID/Team signature.",
+      "All six load observations failed the original 5.3333-core criterion; observed 3.4921 to 3.8349 cores."
+    ],
+    "timing_or_energy_benefit_claimed": false,
+    "warm_60_seconds": "NOT_RUN_AFTER_FAILED_PREREQUISITE",
+    "release_195_seconds": "NOT_RUN_AFTER_FAILED_PREREQUISITE",
+    "tcc_modified": false,
+    "installed_app_or_private_audio_accessed": false,
+    "owned_load_helpers_exited": 48,
+    "evidence_asset": "asr-validation-evidence.zip",
+    "evidence_bytes": 29289,
+    "evidence_sha256": "7ec7852b0fe807bfa30a40f0f6ca97ff5797b841bb89efca13aa33bdf1663130"
+  },
+  "notarization": {
+    "status": "BLOCKED",
+    "profile": "Saytile-notary",
+    "notarytool_returncode": 69,
+    "reason": "No Keychain password item found for the configured profile",
+    "credentials_requested_or_exported": false
+  },
+  "gatekeeper": {
+    "returncode": 3,
+    "assessment": "rejected; source=Unnotarized Developer ID",
+    "passed": false
+  },
+  "release": {
+    "id": 459010594,
+    "draft": true,
+    "published": false,
+    "url": "https://github.com/haohongfei2001-png/saytile/releases/tag/untagged-33577ffb9c2577452272",
+    "official_website_deployed": false,
+    "stable_feed_updated": false,
+    "public_latest": "1.0.0 (572)"
+  },
+  "physical_update_evidence": {
+    "status": "PASS",
+    "storage": {
+      "status": "PASS",
+      "passed": 18,
+      "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+      "source_dirty": false,
+      "fixture_network_denied": true,
+      "physical_power_loss": "NOT_RUN",
+      "receipt": "storage-processes.json"
+    },
+    "updates": [
+      {
+        "status": "PASS",
+        "versions": [
+          "1.0.0",
+          "1.1.0"
+        ],
+        "builds": [
+          "572",
+          "578"
+        ],
+        "source_versions": [
+          {
+            "source": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+            "build": "572"
+          },
+          {
+            "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+            "build": "578"
+          }
+        ],
+        "checks": {
+          "corrupted_archive_rejected": true,
+          "valid_archive_installed": true,
+          "candidate_signature_verified": true,
+          "original_executable_code_preserved": true,
+          "upgraded_app_launched_offline": true,
+          "current_version_not_reinstalled": true,
+          "manual_rollback_reopened": true,
+          "original_packages_unchanged": true,
+          "paragraph_metadata_preserved": true,
+          "model_cache_bytes_and_mtime_preserved": true
+        },
+        "real_model_cache": {
+          "source": "/private/tmp/saytile-023-weights/qwen-small",
+          "file_count": 6,
+          "total_bytes": 712777119,
+          "before_sha256_and_mtime_verified": true,
+          "after_sha256_and_mtime_verified": true
+        }
+      },
+      {
+        "status": "PASS",
+        "versions": [
+          "1.0.1",
+          "1.1.0"
+        ],
+        "builds": [
+          "577",
+          "578"
+        ],
+        "source_versions": [
+          {
+            "source": "3e1cc6961df4da01a1c52310755a7dd215ef4310",
+            "build": "577"
+          },
+          {
+            "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+            "build": "578"
+          }
+        ],
+        "checks": {
+          "corrupted_archive_rejected": true,
+          "valid_archive_installed": true,
+          "candidate_signature_verified": true,
+          "original_executable_code_preserved": true,
+          "upgraded_app_launched_offline": true,
+          "current_version_not_reinstalled": true,
+          "manual_rollback_reopened": true,
+          "original_packages_unchanged": true,
+          "paragraph_metadata_preserved": true,
+          "model_cache_bytes_and_mtime_preserved": true
+        },
+        "real_model_cache": {
+          "source": "/private/tmp/saytile-023-weights/qwen-small",
+          "file_count": 6,
+          "total_bytes": 712777119,
+          "before_sha256_and_mtime_verified": true,
+          "after_sha256_and_mtime_verified": true
+        }
+      }
+    ],
+    "native_host_update": {
+      "status": "PASS",
+      "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+      "scope": "real Saytile NSApplication and AppUpdateController -> SPUUpdater -> Sparkle installer -> argument-free app relaunch",
+      "version_scope": "same candidate binary using 1-to-2 fixture aliases; real release versions tested separately",
+      "user_driver": "deterministic fixture driver; standard Sparkle window interaction NOT_RUN",
+      "source_pid": 71813,
+      "relaunched_pid": 71820,
+      "real_native_install_relaunch": true,
+      "argument_free_relaunch_isolated": true,
+      "preference_canary_preserved": true,
+      "installed_signature_verified": true,
+      "model_marker_bytes_and_mtime_unchanged": true,
+      "production_key_continuity_verified": true,
+      "signed_release_notes_loaded": true,
+      "corrupted_release_notes_rejected": true,
+      "original_app_untouched": true,
+      "production_data": "NOT_ACCESSED"
+    },
+    "runner_sha256": "e8fa76955ddef75eaf8dff9bc02831e041fc202f2526be6528c3147f5d7a9b44",
+    "storage_probe_sha256": "7f7d276570d13d4fe29d7d2a744441eeb3d45f169d812438348446368fe301db",
+    "storage_input_tree_sha256": "a154a4076ed7893d7a9dadb937f67b3ac47d7cc9faf92b66f75fe79745a23fb3",
+    "evidence_asset": "upgrade-validation-evidence.zip",
+    "evidence_bytes": 44592,
+    "evidence_sha256": "9ef1a079be3eccca980e8bbae7f8eef04d2bd4f4cc1c170edcc48dc232ea40ed",
+    "scope_limits": [
+      "Synthetic isolated archives and disposable update identities only; existing user installation and production data were not accessed.",
+      "Real release version spans 572 to 578 and 577 to 578 are proven by the CLI/installer tests; native host exit/relaunch uses the same candidate with 1-to-2 fixture aliases.",
+      "Physical microphone, audio-device changes, actual sleep/wake, power loss and energy measurements are not covered by this archive.",
+      "Standard Sparkle window interaction is not covered by this deterministic host driver.",
+      "Notarization, Gatekeeper acceptance, public final download and installation are not proven by these upgrade tests; root maintains their separate receipts."
+    ]
+  },
+  "product_input_binding": {
+    "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+    "later_changes_scope": "tests, release-validation tooling and delivery evidence only",
+    "paths": [
+      "Sources",
+      "native",
+      "packaging",
+      "Package.swift",
+      "distribution",
+      "scripts/build-app.sh",
+      "scripts/build-number.py",
+      "scripts/build-local-runtime.sh",
+      "scripts/prepare-local-runtime.sh",
+      "scripts/prepare-updater.sh",
+      "scripts/configure-update-feed.py"
+    ],
+    "git_input_tree_sha256": "4cf982169ab665511b9ad919ed38304c1b36f34fdfb88b907d3fbef272bd0267",
+    "candidate_info_source_unchanged": true
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "status": "COMPLETE",
+  "failed_attempt": {
+    "tool": "gh run view --log --allow-escape-sequences",
+    "exit_code": 1,
+    "reason": "unknown flag: --allow-escape-sequences",
+    "network_request_sent": false,
+    "stdout_bytes": 0
+  },
+  "successful_log_method": "gh api repos/haohongfei2001-png/saytile/actions/runs/45576254680/logs",
+  "artifact_digests_verified": true,
+  "stderr_not_committed": true,
+  "log_secret_scan": {
+    "github_PAT": 0,
+    "private_key_headers": 0,
+    "possible_token_URL_count": 1,
+    "token_URL_explanation": "Synthetic rejectsUnsafeOrAmbiguousFeed test input on example.test; not a credential or signed download URL."
+  }
+}

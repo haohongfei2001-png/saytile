@@ -154,11 +154,11 @@ struct PanelCapturePresentation: Equatable {
         switch capture {
         case .paused:
             state = .paused
-            label = "暂停"
-            actionLabel = hasStarted ? "继续收音" : "开始收音"
+            label = microphoneDenied ? "需要麦克风权限" : "暂停"
+            actionLabel = microphoneDenied ? "打开麦克风权限设置" : hasStarted ? "继续收音" : "开始收音"
             actionSymbolName = "play.fill"
             symbolName = "play.fill"
-            detail = nil
+            detail = microphoneDenied ? "请在系统设置 → 隐私与安全性 → 麦克风中允许 Saytile。仍可编辑和复制已有文字。" : nil
         case .starting:
             state = .starting; label = "正在准备"; actionLabel = "取消开启"
             actionSymbolName = "xmark"; symbolName = "xmark"; detail = nil
@@ -389,6 +389,7 @@ final class AppModel: ObservableObject {
     var hidePanel: () -> Void = {}
     var openArchive: () -> Void = {}
     var openSettings: () -> Void = {}
+    var openFirstUse: (() -> Void)?
     var checkForUpdates: (() -> Void)?
     @Published var updateConfigured = false
     @Published var canCheckForUpdates = false
@@ -444,6 +445,7 @@ final class AppModel: ObservableObject {
     }
     private var editorBase: UUID?
     private var editorRecordingID: UUID?
+    private var editorParagraphLocation: (position: Int64, paragraphID: Int64)?
     private var editorWasEdited = false
     private var editorSelectionGeneration = UUID()
     private var draftSequence: UInt64 = 0
@@ -451,6 +453,9 @@ final class AppModel: ObservableObject {
     private var latestEditorValues: [UUID: DraftWrite] = [:]
     private var committingEditorIDs: Set<UUID> = []
     var editorCanEdit: Bool { editorRecordingID != nil && !editorDraftLoading }
+    var editorCanCopyParagraph: Bool {
+        editorCanEdit && selected?.id == editorRecordingID && editorParagraphLocation != nil
+    }
     var hasUnpersistedDrafts: Bool { !pendingDraftWrites.isEmpty || feedback.hasUnsavedDraft }
 
     init(directory: URL, preferences: UserDefaults = .standard, normalLaunch: Bool = false, connectionDependencies: AppConnectionDependencies = .live,
@@ -559,7 +564,7 @@ final class AppModel: ObservableObject {
     }
     var panelCapturePresentation: PanelCapturePresentation {
         PanelCapturePresentation(state: captureDependencies.state(audio), hasStarted: hasStarted,
-            measuredLevel: captureDependencies.level(audio), microphoneDenied: captureProblem && microphoneDenied)
+            measuredLevel: captureDependencies.level(audio), microphoneDenied: microphoneDenied)
     }
     var panelCaptureLabel: String { panelCapturePresentation.label }
     var panelCaptureDetail: String? {
@@ -570,7 +575,11 @@ final class AppModel: ObservableObject {
     var captureActionLabel: String { panelCapturePresentation.actionLabel }
     var captureActionSymbolName: String { panelCapturePresentation.actionSymbolName }
     var captureLabel: String { panelCaptureLabel }
-    var captureProblem: Bool { if case .interrupted = captureDependencies.state(audio) { return true }; return false }
+    var captureProblem: Bool {
+        let state = captureDependencies.state(audio)
+        if case .interrupted = state { return true }
+        return state == .paused && microphoneDenied
+    }
     var microphoneDenied: Bool { [.denied, .restricted].contains(captureDependencies.microphoneAuthorization()) }
     func openMicrophoneSettings() { captureDependencies.openMicrophonePreferences() }
     var microphoneLabel: String {
@@ -581,6 +590,16 @@ final class AppModel: ObservableObject {
         }
     }
     var accessibilityLabel: String { input.hasPermission ? "已允许" : "尚未允许 · 可正常复制" }
+    /// Only a normal launch calls this, after recovery has loaded existing text.
+    /// Closing the workspace is sufficient to dismiss the introduction; a denied
+    /// permission or failed model download must not make it reopen every launch.
+    func presentFirstUseIfNeeded() async {
+        await initialLoad()
+        guard recovered, !exitPrepared, !preparingForExit, !completedFirstTranscript,
+              !preferences.bool(forKey: "firstUse.presented.v1"), let openFirstUse else { return }
+        preferences.set(true, forKey: "firstUse.presented.v1")
+        openFirstUse()
+    }
     func recognitionPhaseLabel(for item: DisplayRecording) -> String {
         guard item.source.recognitionState == .running else { return item.stateLabel }
         return item.isRecording ? "正在记录" : "正在核对文字"
@@ -1003,7 +1022,7 @@ final class AppModel: ObservableObject {
         if state == .listening || state == .speaking { hasStarted = true }
     }
     func toggleCapture() {
-        if captureProblem && microphoneDenied { openMicrophoneSettings(); return }
+        if !captureDependencies.state(audio).isRunning && microphoneDenied { openMicrophoneSettings(); return }
         startupIntentConsumed = true
         captureActionGeneration &+= 1
         let generation = captureActionGeneration
@@ -1127,16 +1146,11 @@ final class AppModel: ObservableObject {
 
     var canCopyLatestParagraph: Bool { (latestTextEntry?.position ?? 0) > hiddenThrough }
 
-    func copyTimeline(selection: String, displayed: [Int64: String]) {
-        if !selection.isEmpty { copy(selection, quietly: true); return }
-        guard let end = latestTextEntry, canCopyLatestParagraph else { return }
-        // A timestamp may contain several natural paragraphs. Copy the same unit
-        // shown by the archive, even while reading an older page; rendered text wins.
-        var snapshot = Dictionary(uniqueKeysWithValues: timeline.entries.map { ($0.position, $0.recording.text) })
-        snapshot[end.position] = end.recording.text
-        snapshot.merge(displayed) { _, rendered in rendered }
-        do { copy(try store.paragraphCopy(paragraphID: end.paragraphID, through: end.position,
-                                         after: hiddenThrough, displayed: snapshot), quietly: true) }
+    func copyTimeline(paragraphID: Int64? = nil, rendered: [TimelineEntry] = [], displayed: [Int64: String]) {
+        do {
+            let snapshot = try panelInsertionSnapshots(paragraphID: paragraphID, rendered: rendered, displayed: displayed)
+            copy(snapshot.map(\.text).joined(), quietly: true)
+        }
         catch { notice = error.localizedDescription }
     }
 
@@ -1168,32 +1182,28 @@ final class AppModel: ObservableObject {
     }
     var hasPanelInsertionScope: Bool {
         if let archive = insertionArchiveEntry { return !archive.recording.text.isEmpty }
-        return (timelineTail?.position ?? 0) > hiddenThrough
+        return canCopyLatestParagraph
     }
-    /// Resolve the exact group and immutable revisions at click time. An archive
-    /// explicitly brought to the panel is a single-record reuse action.
-    func panelInsertionSnapshots(rendered: [TimelineEntry] = [], displayed: [Int64: String] = [:]) throws -> [TimelineTextSnapshot] {
-        let candidates: [TimelineTextSnapshot]
-        if let entry = insertionArchiveEntry {
-            candidates = [TimelineTextSnapshot(entry)]
-        } else {
-            guard let tail = timelineTail, tail.position > hiddenThrough else { return [] }
-            candidates = try store.timelineGroupSnapshots(group: tail.group, through: tail.position)
-                .filter { $0.position > hiddenThrough }
-        }
+    /// Both product actions resolve exactly one natural paragraph at the click.
+    /// A text selection or an archive location explicitly chooses history; merely
+    /// scrolling keeps the latest paragraph as the default. System Copy remains
+    /// a normal NSTextView selection operation.
+    func panelInsertionSnapshots(paragraphID: Int64? = nil, rendered: [TimelineEntry] = [],
+                                 displayed: [Int64: String] = [:]) throws -> [TimelineTextSnapshot] {
+        let explicit = paragraphID ?? insertionArchiveEntry?.paragraphID
+        guard let paragraph = explicit ?? latestTextEntry?.paragraphID,
+              explicit != nil || canCopyLatestParagraph else { return [] }
+        let through = explicit == nil ? (latestTextEntry?.position ?? 0) : Int64.max
         var seen = Dictionary(uniqueKeysWithValues: timeline.entries.map { ($0.position, TimelineTextSnapshot($0)) })
-        if let tail = timelineTail { seen[tail.position] = TimelineTextSnapshot(tail) }
+        if let tail = latestTextEntry { seen[tail.position] = TimelineTextSnapshot(tail) }
         for entry in rendered { seen[entry.position] = TimelineTextSnapshot(entry) }
-        return candidates.compactMap { row in
-            let snapshot = seen[row.position] ?? row
-            guard snapshot.revisionID != nil, !snapshot.text.isEmpty, displayed[row.position] != "" else { return nil }
-            return snapshot
-        }
+        return try store.paragraphTextSnapshots(paragraphID: paragraph, through: through,
+            rendered: Array(seen.values), displayed: displayed)
     }
-    func insertFromPanel(rendered: [TimelineEntry], displayed: [Int64: String]) {
+    func insertFromPanel(paragraphID: Int64? = nil, rendered: [TimelineEntry], displayed: [Int64: String]) {
         guard !isInserting else { return }
         let snapshots: [TimelineTextSnapshot]
-        do { snapshots = try panelInsertionSnapshots(rendered: rendered, displayed: displayed) }
+        do { snapshots = try panelInsertionSnapshots(paragraphID: paragraphID, rendered: rendered, displayed: displayed) }
         catch { notice = error.localizedDescription; return }
         guard !snapshots.isEmpty else { notice = "这段还没有可插入的文字。"; return }
         isInserting = true
@@ -1204,7 +1214,8 @@ final class AppModel: ObservableObject {
                 var frozen: [TranscriptRevision] = []
                 for snapshot in snapshots {
                     guard let revisionID = snapshot.revisionID else { return }
-                    frozen.append(try await store.freezeRevision(recordingID: snapshot.recordingID, revisionID: revisionID, text: snapshot.text))
+                    frozen.append(try await store.freezeRevision(recordingID: snapshot.recordingID, revisionID: revisionID,
+                                                                 text: snapshot.sourceText, presentationText: snapshot.text))
                 }
                 for snapshot in frozen {
                     guard input.binding?.id == binding.id else { notice = NativeInputResult.cancelled.message; return }
@@ -1266,11 +1277,12 @@ final class AppModel: ObservableObject {
     func selectForEditing(_ item: DisplayRecording) async {
         if editorRecordingID == item.id { selected = item; await loadVersions(item.id); return }
         let generation = UUID(); editorSelectionGeneration = generation
-        selected = item; versions = []; editorDraftLoading = true; editorRecordingID = nil; editorDraft = ""; editorConflictingVersion = nil
+        selected = item; versions = []; editorDraftLoading = true; editorRecordingID = nil; editorParagraphLocation = nil; editorDraft = ""; editorConflictingVersion = nil
         _ = await flushEditorDrafts()
         do {
             let stored = try await store.archiveDraft(recordingID: item.id)
-            guard let current = try await store.recording(id: item.id) else { return }
+            guard let entry = try await store.archiveEntryForEditing(item.id, filter: .all) else { return }
+            let current = entry.recording
             guard editorSelectionGeneration == generation, selected?.id == item.id else { return }
             let pending = pendingDraftWrites[item.id]
             let draft = pending?.text ?? stored?.text
@@ -1280,6 +1292,7 @@ final class AppModel: ObservableObject {
             selected = DisplayRecording(source: current)
             editorDraft = draft ?? current.text
             editorWasEdited = draft != nil
+            editorParagraphLocation = (entry.position, entry.paragraphID)
             editorRecordingID = item.id; editorDraftLoading = false
             editorDraftStatus = pendingDraftWrites[item.id] == nil ? "修改会自动暂存，保存后更新这段文字" : "草稿尚未写入磁盘，请保留此窗口"
             // Older builds could leave a durable draft after an edit was fully undone.
@@ -1291,8 +1304,18 @@ final class AppModel: ObservableObject {
             if editorSelectionGeneration == generation { editorDraftStatus = "草稿读取失败，请重新选择记录"; notice = error.localizedDescription; editorDraftLoading = false }
         }
     }
+    func copyEditorParagraph() {
+        guard editorCanCopyParagraph, let location = editorParagraphLocation else { return }
+        // Resolve the owner while loading the editor, so the click reads every
+        // paragraph member and the current draft synchronously as one snapshot.
+        let draft = editorDraft
+        do {
+            copy(try store.paragraphCopy(paragraphID: location.paragraphID,
+                                        displayed: [location.position: draft]))
+        } catch { notice = error.localizedDescription }
+    }
     func closeDetail() {
-        editorSelectionGeneration = UUID(); selected = nil; editorRecordingID = nil; editorConflictingVersion = nil
+        editorSelectionGeneration = UUID(); selected = nil; editorRecordingID = nil; editorParagraphLocation = nil; editorConflictingVersion = nil
         Task { _ = await flushEditorDrafts() }
     }
     func updateEditorDraft(_ text: String) {

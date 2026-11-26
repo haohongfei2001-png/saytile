@@ -4,10 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#fbfbfa">
-  <meta name="description" content="Saytile，常驻 Mac 的 AI 语音板。自然开口，持续听写与核对，让每句话准确、忠实地留下。">
+  <meta name="description" content="Saytile，常驻 Mac 的本地语音表达面板。自然讲话、实时呈现、连续自然段、一键复制，原音与历史表达留在这台 Mac。">
   <meta property="og:title" content="Saytile — 让每句话，准确留下。">
-  <meta property="og:description" content="你自然开口。Saytile 持续听写、核对，让留下的文字忠实于你。">
+  <meta property="og:description" content="自然讲话，文字实时呈现。连续记录你的思路，随时一键复制。">
   <meta property="og:type" content="website">
+  <meta property="og:image" content="https://saytile.com/assets/saytile-approved.webp">
+  <meta property="og:image:alt" content="Saytile 应用图标">
+  <meta name="twitter:card" content="summary">
   <meta property="og:url" content="https://saytile.com/">
   <title>Saytile — 让每句话，准确留下。</title>
   <link rel="icon" href="assets/saytile-approved.webp" type="image/webp">
@@ -39,9 +42,9 @@
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-intro">
-        <p class="eyebrow hero-eyebrow"><span class="live-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span> AI 语音板，专为 Mac</p>
+        <p class="eyebrow hero-eyebrow"><span class="live-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span> 本地语音板，专为 Mac</p>
         <h1 id="hero-title"><span>让每句话，</span><span>准确留下<span class="full-stop">。</span></span></h1>
-        <p class="hero-description">你自然开口。Saytile 持续听写、核对，<br>让留下的文字，忠实于你。</p>
+        <p class="hero-description">你自然开口，文字实时呈现。<br>连续记录你的思路，随时一键复制。</p>
       </div>
       <div class="hero-product" id="experience">
         <div class="product-light" aria-hidden="true"><span></span></div>
@@ -77,7 +80,7 @@
           <div class="r8-editorial">
             <p class="r8-kicker"><i></i> 随时开口</p>
             <h2 id="expression-heading">停一下，<br><span class="r8-ink">也接得上。</span></h2>
-            <p class="r8-description">想法不必一次成形。<br>你边想边说，文字在一旁，<br>一句接着一句。</p>
+            <p class="r8-description">想法不必一次成形。<br>短暂停顿，继续同一自然段，<br>一句接着一句。</p>
             <div class="r8-chapters" role="group" aria-label="表达过程演示">
               <button type="button" data-phase="0" aria-pressed="true"><span class="r8-chapter-dot"></span><span>自然说</span><small>文字随之出现</small></button>
               <button type="button" data-phase="1" aria-pressed="false"><span class="r8-chapter-dot"></span><span>慢慢想</span><small>停顿，仍在待命</small></button>
@@ -103,7 +106,7 @@
           </div>
         </div>
         <div class="r8-fidelity r8-container" id="fidelity-demo">
-          <div class="r8-fidelity-label"><svg><use href="#i-voice"/></svg><span>逐字核对。<br><strong>语气，还是你。</strong></span></div>
+          <div class="r8-fidelity-label"><svg><use href="#i-voice"/></svg><span>原音定稿。<br><strong>语气，还是你。</strong></span></div>
           <p class="r8-proof"><span class="r8-spoken">嗯，不赶时间。</span><span>等天气放晴，<span class="r8-corrected" id="corrected-sample">再</span>出发。</span></p>
           <button type="button" id="correction-replay" class="r8-text-button">看一次修正 <svg><use href="#i-replay"/></svg></button>
         </div>
@@ -194,7 +197,7 @@
 
     <section class="start-section" id="start" aria-labelledby="start-title">
       <div class="start-glow" aria-hidden="true"></div><div class="start-main section-shell reveal"><div class="start-brand"><img src="assets/saytile-approved.webp" width="100" height="100" alt="Saytile 应用图标"><span>Saytile for Mac</span></div><h2 id="start-title">下一句，<br>从这里开始。</h2><div class="start-side"><p>给自然的表达，<br>一个随时可用的地方。</p><a class="button button-white" href="https://github.com/haohongfei2001-png/saytile/releases/download/v1.0.0/Saytile-1.0.0-arm64.dmg" aria-describedby="release-download-info">下载正式版 1.0.0 <svg><use href="#i-down"/></svg></a><span id="release-download-info">正式版 1.0.0（572）· 65.7 MB<br>Apple Silicon · macOS 26+<br>Developer ID 已签名 · 尚未公证<br>首次打开需在系统设置中确认。</span></div></div>
-      <div class="start-faq section-shell"><details><summary>第一次使用，需要准备什么？<svg><use href="#i-plus"/></svg></summary><p>本地中文识别无需 API Key。首次使用需授予麦克风权限，并联网准备约 713 MB 的本地模型；下载期间会尝试使用 Apple 本地识别，必要时准备系统语言资源。识别资源就绪后可离线使用。</p></details><details><summary>在哪里获取当前版本？<svg><use href="#i-plus"/></svg></summary><p>上方按钮下载正式版 1.0.0（572），适用于 Apple 芯片 Mac。已使用 Developer ID 签名，尚未公证；Gatekeeper 默认会阻止直接打开。核验来源后，可在“系统设置 → 隐私与安全性”选择“仍要打开”。请阅读 <a href="https://github.com/haohongfei2001-png/saytile/releases/tag/v1.0.0" target="_blank" rel="noopener noreferrer">版本说明、安装方法与 SHA-256</a>。本版延续 0.18 与后续内测版的资料空间，不自动导入旧 RC1 的独立档案。当前请从官网下载更新；无需 API Key，模型就绪后可离线识别。</p></details></div>
+      <div class="start-faq section-shell"><details><summary>第一次使用，需要准备什么？<svg><use href="#i-plus"/></svg></summary><p>首次允许麦克风，并联网准备约 713 MB 的本地模型，就可以自然讲话。文字持续出现在 Saytile 自己的面板中，无需账号、API Key、快捷键或选择外部输入位置。模型就绪后可离线使用；准备期间已有原音和文字会保留。</p></details><details><summary>在哪里获取当前版本？<svg><use href="#i-plus"/></svg></summary><p>上方按钮下载正式版 1.0.0（572），适用于 Apple 芯片 Mac。已使用 Developer ID 签名，尚未公证；Gatekeeper 默认会阻止直接打开。核验来源后，可在“系统设置 → 隐私与安全性”选择“仍要打开”。请阅读 <a href="https://github.com/haohongfei2001-png/saytile/releases/tag/v1.0.0" target="_blank" rel="noopener noreferrer">版本说明、安装方法与 SHA-256</a>。本版延续 0.18 与后续内测版的资料空间，不自动导入旧 RC1 的独立档案。当前请从官网下载更新；无需 API Key，模型就绪后可离线识别。</p></details><details><summary>复制文字，也需要辅助功能权限吗？<svg><use href="#i-plus"/></svg></summary><p>不需要。自然讲话、记录、编辑、复制和回听都在 Saytile 自己的面板中完成。普通使用不需要绑定其他应用。已有跨应用插入作为可选能力保留，仅在主动使用时需要辅助功能权限；Saytile 不会自动发送。</p></details><details><summary>断网或关闭应用，会丢失资料吗？<svg><use href="#i-plus"/></svg></summary><p>文字、修改版本和原音保存在本机。模型准备完成后，断网仍可识别；异常退出后会尝试恢复已经写入的原音和文字。删除原音不删除对应文字。当前不提供已验证的 iCloud 跨设备恢复，请保留 Mac 的常规备份。</p></details></div>
       <footer class="site-footer section-shell"><a href="#top" class="footer-brand">Saytile</a><span>自然开口。忠实留下。</span><a href="https://github.com/haohongfei2001-png/saytile" target="_blank" rel="noopener noreferrer">GitHub <svg><use href="#i-external"/></svg></a><small>© 2026</small></footer>
     </section>
   </main>

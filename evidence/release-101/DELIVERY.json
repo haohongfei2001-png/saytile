@@ -1,0 +1,147 @@
+{
+  "schema": 1,
+  "version": "1.0.1",
+  "build": 577,
+  "product_source": "3e1cc6961df4da01a1c52310755a7dd215ef4310",
+  "ci_source": "23a1523f185b2ba2c594a354bff070853be1c771",
+  "verdict": "HOLD",
+  "date": "2026-11-25 Asia/Shanghai",
+  "evidence": {
+    "artifact": {
+      "file": "evidence/release-101/build/artifact-577.json",
+      "sha256": "ed572fa224fbf998e9e2f8821058893d4e7029611f3abd6190e0aeddc33f8c9b"
+    },
+    "signature": {
+      "file": "evidence/release-101/build/signature-gatekeeper577.json",
+      "sha256": "cd67689f89675a6cae7d59cd9f1dae4caa47c3cb1546c9d1cfb57349e7658efc"
+    },
+    "install": {
+      "file": "evidence/release-101/install-dmg577.json",
+      "sha256": "be98f1ae09baa4844ecbb53ecb48cdc6cfbe0ef4c400b6620585bce53393c0e1"
+    },
+    "rollback018": {
+      "file": "evidence/release-101/rollback-018-577.json",
+      "sha256": "28723a07dcf46197f87f81bcca34a8be33d071c145a817b5eedd49ac5b445272"
+    },
+    "rollback533": {
+      "file": "evidence/release-101/rollback-533-577.json",
+      "sha256": "bc2276a3fd6de025846ccd1e015722a3759285220569463838ec422ef456e39e"
+    },
+    "native_controls": {
+      "file": "evidence/release-101/native577-controls/manifest.json",
+      "sha256": "e65ccc75ff3c0567acec7c8ec1f1850b6a1edb88620bf1f7e76c32ef13e2f604"
+    },
+    "native_windows": {
+      "file": "evidence/release-101/native577-windows/receipt.json",
+      "sha256": "9feb4045e72fd589e0565f8d7bdf537b35759b83a9f76fc8f72b50c20a3c89c7"
+    },
+    "native_asr": {
+      "file": "evidence/release-101/native577-asr/final-source-check.json",
+      "sha256": "d91fc79de0ef2576e5928a43a3f5778e25e44c93b9e8e09cf1b6b8fe06705fe4"
+    },
+    "quality": {
+      "file": "evidence/release-101/final-cohort-review/quality-comparison-complete.json",
+      "sha256": "830a55f29e2a1c264bfbd32698c817d79f6433c4cefa40c38345374ba2deedde"
+    },
+    "paired": {
+      "file": "evidence/release-101/final-paired-review/comparison.json",
+      "sha256": "aff877d22fb1050b12fc33893261b65cae8f3231cceb15088a30798f7d1239fb"
+    },
+    "soak": {
+      "file": "evidence/release-101/regression-final/soak.json",
+      "sha256": "bc6e6ba13c322362abbeff84785d112999069fb2b5ea1f7af3a6bad8fdf334fd"
+    },
+    "store_processes": {
+      "file": "evidence/release-101/distribution/final577/storage-processes.json",
+      "sha256": "db0ded00324d5c781b86530c64daba5629174464034999cb42e737532f59065f"
+    },
+    "model_resume": {
+      "file": "evidence/release-101/model-resume-real/receipt.json",
+      "sha256": "aa80c3cdfed1115f2e117979b1cd5c3f80c3eb5bd1ff5e9c336796f39247546e"
+    },
+    "update": {
+      "file": "evidence/release-101/distribution/final577/summary.json",
+      "sha256": "22edcaf92222f6a78a64ee812597ee86492329ba3330d7acb35346b8b0780cba"
+    },
+    "source_binding": {
+      "file": "evidence/release-101/build/product577-equivalence.json",
+      "sha256": "532459fb29649adc28ebe94d2b0e06a8ef21db1168c85dd80bde3de3b9623153"
+    },
+    "protection": {
+      "file": "evidence/release-101/build/protection577-final.json",
+      "sha256": "9c0f566dd1b635137c2fd439616adca26b7552e690c82b22aa95b1fadd44f573"
+    },
+    "ci": {
+      "file": "evidence/release-101/ci/23a1523/receipt.json",
+      "sha256": "a8ed6089f0797fbae6000c9e2d94fe409bfff587a4abe9de8ccf600e510856ab"
+    },
+    "standard_ui": {
+      "file": "evidence/release-101/ci/3e1cc69-verified/standard-update-ui/native-receipt.json",
+      "sha256": "dd8c413d6d2404d19155e9a484451a0575a911daf61366f70e50915a5676ad00"
+    },
+    "root_review": {
+      "file": "evidence/release-101/build/root-review577.json",
+      "sha256": "f9285deb6e1ca7c1ea594a20e45235def0e30b8d9b8f669aa256bd3c5f0eb5a4"
+    },
+    "earlier_independent_review": {
+      "file": "evidence/release-101/final-independent-review/receipt.json",
+      "sha256": "6892a3e15a78ef106348c0335cd79681c5b34acad770ce5d1cf63963402da38c"
+    },
+    "context_faults": {
+      "file": "evidence/release-101/input-context-read/receipt.json",
+      "sha256": "9e002bf88111731522af29e6d8defbcab869d2b5712c406add04fe555dadb8cc"
+    },
+    "brand_original_failure": {
+      "file": "evidence/release-101/ci/3e1cc69/brand-manifest-failure.json",
+      "sha256": "36304f2485395110757e40510e2aaa113d4f5d17a09dc344254ac94b04878d74"
+    },
+    "prior_product_ci": {
+      "file": "evidence/release-101/ci/3e1cc69-verified/receipt.json",
+      "sha256": "6ca5a919a481fd11a511289ca87426bdc00517e1bde5a99420a2ff306593fe12"
+    },
+    "final_ci_source_binding": {
+      "file": "evidence/release-101/ci/23a1523/product-source-binding.json",
+      "sha256": "541570ea374e0f559054e0bbcbf737c1eca9c666f5464d004ccbe7ff19b4f898"
+    }
+  },
+  "signature": "PASS",
+  "dmg_sha256": "7fec71094a5ecc325b2991426dc8347ec0f6f77a9944bbeb96604a32fc514b78",
+  "dmg_bytes": 64577002,
+  "remaining": {
+    "notary": "BLOCKED_NO_AUTHORIZATION",
+    "gatekeeper": "BLOCKED_UNNOTARIZED",
+    "performance": "OPEN: first/long-gap tail not eliminated; CPU improvement not proved",
+    "chrome_original_failure": "UNKNOWN bottom-level AX cause; role/context classification defects fixed; final source native six-target CI PASS; readable target changes still denied",
+    "microphone": "NOT_RUN_LID_CLOSED",
+    "physical_8gb_mac": "NOT_RUN",
+    "physical_power_loss": "NOT_RUN",
+    "power_watts": "NOT_MEASURED",
+    "icloud_private_feedback": "NOT_RUN_NOT_ENABLED",
+    "hosted_kernel_sleep": "BLOCKED: VirtualMac2,1 runner lacks scheduled hardware wake/system sleep support; no physical-host PASS"
+  },
+  "installed_build": 533,
+  "production_installed_preserved": true,
+  "published": false,
+  "merged": false,
+  "paid_api_calls": false,
+  "private_audio_used": false,
+  "tests": {
+    "swift_testing": {
+      "total": 584,
+      "passed": 584,
+      "failed": 0
+    },
+    "xctest": {
+      "total": 30,
+      "passed": 30,
+      "failed": 0
+    },
+    "source": "23a1523f185b2ba2c594a354bff070853be1c771"
+  },
+  "ci_status": {
+    "product_native": "PASS",
+    "original_brand_manifest": "FAIL_PRESERVED",
+    "final_all_workflows": "PASS_4_WORKFLOWS_7_JOBS",
+    "assertions_and_workflows_relaxed": false
+  }
+}

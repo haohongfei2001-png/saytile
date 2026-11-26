@@ -1,0 +1,41 @@
+2026-11-25 01:19:34.771 probe[4725:23066200] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-25 01:19:34.771 probe[4725:23066200] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-25 01:19:34.776 probe[4725:23066200] Failure on line 688 in function id scheduleApplicationNotification(LSNotificationCode, NSWorkspaceNotificationCenter *): noErr == _LSModifyNotification(notificationID, 1, &code, 0, NULL, NULL, NULL)
+PASS existing installs retain original glass, type and default dimensions
+PASS existing border preference survives appearance upgrade
+PASS existing install defaults to the original purple brand
+PASS black brand resolves a neutral button without overwriting panel choices
+PASS changing brand preserves glass, text, capture and recognition
+PASS black brand is persisted to the injected suite
+PASS purple restores the entire preexisting appearance
+2026-11-25 01:19:34.882 probe[4725:23066200] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-25 01:19:34.883 probe[4725:23066200] IOPMScheduleUserActivityLevelNotification returned 0
+PASS appearance presets survive store and settings restart
+PASS relaunch restores black logo and colors together
+PASS restore defaults restores and persists the original purple brand
+PASS one reset restores the original appearance without touching ASR
+2026-11-25 01:19:34.960 probe[4725:23066200] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-25 01:19:34.961 probe[4725:23066200] IOPMScheduleUserActivityLevelNotification returned 0
+PASS invalid appearance preferences safely fall back to current visual defaults
+PASS invalid brand falls back safely to purple
+2026-11-25 01:19:35.079 probe[4725:23066200] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-25 01:19:35.080 probe[4725:23066200] IOPMScheduleUserActivityLevelNotification returned 0
+PASS first launch remains offline, paused, with no permission request
+PASS first-use introduction opens once without microphone capture or an input binding
+PASS denied permission on a paused relaunch opens settings directly without a failed start
+PASS denial preserves the start guide and identifies microphone recovery
+PASS denied capsule opens recovery directly without a second start request
+PASS restricted microphone state has the same safe recovery and no repeated capture request
+PASS a cancelled start or empty saved recording is not first recognition
+PASS a partial reaches the board before a full archive refresh
+PASS an actual nonempty stored partial completes first use before end of speech
+2026-11-25 01:19:35.170 probe[4725:23066200] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-25 01:19:35.171 probe[4725:23066200] IOPMScheduleUserActivityLevelNotification returned 0
+PASS relaunch retains completion without starting capture
+PASS completed first use does not reopen an introduction on relaunch
+2026-11-25 01:19:35.202 probe[4725:23066200] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-25 01:19:35.203 probe[4725:23066200] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-25 01:19:35.235 probe[4725:23066200] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-25 01:19:35.236 probe[4725:23066200] IOPMScheduleUserActivityLevelNotification returned 0
+PASS closing first-use settings before recording prevents repeated launch interruption
+Swift/ErrorType.swift:254: Fatal error: Error raised at top level: SaytileKit.StoreError.database("这份资料已由另一个 Saytile 实例打开。请关闭另一个实例后重试。")

@@ -1,0 +1,196 @@
+Building for debugging...
+[Planning deferred tasks]
+[37 / 97] Saytile_SaytileKit
+[38 / 97]
+[49 / 98] CAudio
+[70 / 107] CAudio
+[71 / 108]
+[89 / 108] CAudio
+[97 / 108] CAudio
+[103 / 136] CAudio
+[103 / 145] SaytileKit
+[113 / 280]
+[118 / 280]
+[127 / 280]
+[135 / 280]
+[143 / 280]
+[144 / 280]
+[147 / 280]
+[150 / 280]
+[154 / 280]
+[155 / 280]
+[157 / 280]
+[159 / 280]
+[161 / 280]
+[162 / 280]
+[166 / 280] CAudio
+/private/tmp/saytile-101-update-close/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[167 / 280]
+[172 / 280]
+[174 / 280]
+[177 / 280]
+[178 / 280]
+[188 / 280]
+[193 / 280]
+[195 / 280]
+[197 / 280]
+[201 / 280]
+[206 / 280]
+[207 / 280]
+[208 / 280]
+[215 / 280]
+[216 / 280]
+[217 / 280]
+[222 / 280]
+[223 / 280]
+[224 / 280]
+[227 / 280]
+[229 / 280]
+[240 / 280]
+[241 / 280]
+[243 / 280]
+[244 / 280]
+[245 / 280]
+[249 / 280]
+[254 / 280]
+[257 / 280]
+[258 / 280]
+[259 / 280]
+[260 / 280]
+[271 / 280] SaytileKit
+[272 / 280] SaytileKit
+[277 / 280] SaytileKit
+/private/tmp/saytile-101-update-close/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+274 |         var run: ModelRunTicket?
+275 |         let started = Date()
+276 |         var usageRecorded = false
+    |             `- warning: variable 'usageRecorded' was written to, but never read
+277 |         do {
+278 |             try await assertCurrent()
+/private/tmp/saytile-101-update-close/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (58.95秒)
+PASS real kernel file-size limit rejects oversized SQLite write
+PASS failed transaction preserves selected text
+PASS failed transaction leaves no partial revision
+PASS writes resume after limit is restored
+OPENED
+PASS interrupted capture closed
+PASS interrupted recognition queued
+PASS selected edited version retained
+PASS pin retained
+PASS durable audio coverage retained
+PASS all immutable versions retained
+PASS draft retained
+PASS uncertain delivery not replayed
+PASS old binding invalid
+PASS SQLite integrity
+PASS schema upgrade committed
+PASS local and legacy recordings have no implicit cloud upload grants
+OPENED
+PASS interrupted capture closed
+PASS interrupted recognition queued
+PASS selected edited version retained
+PASS pin retained
+PASS durable audio coverage retained
+PASS all immutable versions retained
+PASS draft retained
+PASS uncertain delivery not replayed
+PASS old binding invalid
+PASS SQLite integrity
+PASS schema upgrade committed
+PASS local and legacy recordings have no implicit cloud upload grants
+PROBE_ERROR: 资料库暂时不可用：资料库来自更新版本，请升级 Saytile。
+OPENED
+PASS startup tail repair is idempotent
+PASS one original timeline row retains its displayed partial
+PASS interrupted WAV available after reopening
+PASS recovered sample counts include pre-checkpoint tail
+PASS WAV header
+PASS WAV header
+PASS all original PCM bytes match
+PASS one local candidate, no replay
+PASS partial was never promoted for external delivery
+PASS SQLite uses media flushes
+PASS SQLite integrity
+PASS startup tail repair is idempotent
+PASS one original timeline row retains its displayed partial
+PASS interrupted WAV available after reopening
+PASS recovered sample counts include pre-checkpoint tail
+PASS WAV header
+PASS WAV header
+PASS all original PCM bytes match
+PASS one local candidate, no replay
+PASS partial was never promoted for external delivery
+PASS SQLite uses media flushes
+PASS SQLite integrity
+PASS startup tail repair is idempotent
+PASS one original timeline row retains its displayed partial
+PASS interrupted WAV available after reopening
+PASS recovered sample counts include pre-checkpoint tail
+PASS WAV header
+PASS all original PCM bytes match
+PASS one local candidate, no replay
+PASS partial was never promoted for external delivery
+PASS SQLite uses media flushes
+PASS SQLite integrity
+PASS startup tail repair is idempotent
+PASS one original timeline row retains its displayed partial
+PASS interrupted WAV available after reopening
+PASS recovered sample counts include pre-checkpoint tail
+PASS WAV header
+PASS all original PCM bytes match
+PASS one local candidate, no replay
+PASS partial was never promoted for external delivery
+PASS SQLite uses media flushes
+PASS SQLite integrity
+PASS startup tail repair is idempotent
+PASS one original timeline row retains its displayed partial
+PASS interrupted WAV available after reopening
+PASS recovered sample counts include pre-checkpoint tail
+PASS WAV header
+PASS all original PCM bytes match
+PASS one local candidate, no replay
+PASS partial was never promoted for external delivery
+PASS SQLite uses media flushes
+PASS SQLite integrity
+PASS startup tail repair is idempotent
+PASS one original timeline row retains its displayed partial
+PASS interrupted WAV available after reopening
+PASS recovered sample counts include pre-checkpoint tail
+PASS WAV header
+PASS all original PCM bytes match
+PASS one local candidate, no replay
+PASS partial was never promoted for external delivery
+PASS SQLite uses media flushes
+PASS SQLite integrity
+PROBE_ERROR: 资料库暂时不可用：这份资料已由另一个 Saytile 实例打开。请关闭另一个实例后重试。
+PASS interrupted capture closed
+PASS interrupted recognition queued
+PASS selected edited version retained
+PASS pin retained
+PASS durable audio coverage retained
+PASS all immutable versions retained
+PASS draft retained
+PASS uncertain delivery not replayed
+PASS old binding invalid
+PASS SQLite integrity
+PASS schema upgrade committed
+PASS local and legacy recordings have no implicit cloud upload grants
+PASS interrupted capture closed
+PASS interrupted recognition queued
+PASS selected edited version retained
+PASS pin retained
+PASS durable audio coverage retained
+PASS all immutable versions retained
+PASS draft retained
+PASS uncertain delivery not replayed
+PASS old binding invalid
+PASS SQLite integrity
+PASS schema upgrade committed
+PASS local and legacy recordings have no implicit cloud upload grants
+PASS deletion intent resumed after SIGKILL
+PASS audio erasure retains selected text
+PASS audio erasure retains all revisions
+PASS audio erasure retains draft
+PASS physical owned audio removed
+RC_STORAGE_PROCESS_PASS 18 checks

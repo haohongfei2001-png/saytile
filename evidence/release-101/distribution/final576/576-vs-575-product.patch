@@ -1,0 +1,51 @@
+diff --git a/Sources/SaytileKit/InputAccessibility.swift b/Sources/SaytileKit/InputAccessibility.swift
+index 33e137c..e1e20cd 100644
+--- a/Sources/SaytileKit/InputAccessibility.swift
++++ b/Sources/SaytileKit/InputAccessibility.swift
+@@ -82,16 +82,19 @@ final class AXInputAccess: InputAccess {
+             throw NativeInputError.targetChanged
+         }
+         let bundle = app.bundleIdentifier ?? ""
+-        let role = string(element, kAXRoleAttribute) ?? ""
++        let role = string(element, kAXRoleAttribute)
+         let subrole = string(element, kAXSubroleAttribute) ?? ""
+         let description = string(element, kAXRoleDescriptionAttribute) ?? ""
+         let identifier = string(element, kAXIdentifierAttribute) ?? ""
+-        let sensitive = InputSafetyPolicy.isSensitive(applicationID: bundle, role: role, subrole: subrole,
++        let sensitive = InputSafetyPolicy.isSensitive(applicationID: bundle, role: role ?? "", subrole: subrole,
+                                                        description: description, identifier: identifier)
+-        let editableRoles: Set<String> = [kAXTextFieldRole, kAXTextAreaRole, kAXComboBoxRole]
+-        let editable = editableRoles.contains(role) && (bool(element, kAXEnabledAttribute) ?? true)
+         // Never read text from a secure field, even for local confirmation.
+         guard !sensitive else { throw NativeInputError.sensitive }
++        let enabled = bool(element, kAXEnabledAttribute)
++        let editable: Bool
++        do { editable = try InputSafetyPolicy.isEditable(role: role, enabled: enabled) }
++        catch { unavailable("editor-role-unavailable"); throw error }
++        if !editable { unavailable(enabled == false ? "editor-disabled" : "editor-role-not-editable") }
+         let (isWeb, page, contextComplete) = try pageIdentity(element, window: window, appID: bundle)
+         if rememberedElement == nil || !CFEqual(rememberedElement!, element) {
+             elementID = UUID(); rememberedElement = element
+@@ -475,6 +478,15 @@ struct AXTextWriteTimeout: Error {}
+ struct AXDispatchFailure: Error { let code: Int32 }
+ 
+ enum InputSafetyPolicy {
++    /// An unreadable role is missing proof, not proof of a non-editable target.
++    /// A known disabled field still refuses immediately, even if its role is absent.
++    /// The coordinator may only settle an already-issued write after this unknown;
++    /// initial binding and every new write continue to require a complete snapshot.
++    static func isEditable(role: String?, enabled: Bool?) throws -> Bool {
++        if enabled == false { return false }
++        guard let role, !role.isEmpty else { throw NativeInputError.unsupported }
++        return [kAXTextFieldRole, kAXTextAreaRole, kAXComboBoxRole].contains(role)
++    }
+     static func isBrowser(applicationID: String) -> Bool {
+         let id = applicationID.lowercased()
+         return ["safari", "chrome", "chromium", "firefox", "microsoft.edgemac", "brave", "vivaldi", "thebrowser", "opera"].contains { id.contains($0) }
+diff --git a/packaging/BUILD_NUMBER b/packaging/BUILD_NUMBER
+index db08d2a..bb7a7c1 100644
+--- a/packaging/BUILD_NUMBER
++++ b/packaging/BUILD_NUMBER
+@@ -1 +1 @@
+-575
++576

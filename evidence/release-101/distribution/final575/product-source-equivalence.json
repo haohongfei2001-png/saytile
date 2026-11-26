@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "old_product_source": "73ad857442964437929819ba9965f6bcfdcefd27",
+  "final_product_source": "8f25ea3be642263daf22ff297f337026395840a6",
+  "compared_paths": [
+    "Sources",
+    "native",
+    "Package.swift",
+    "packaging"
+  ],
+  "changed_files": [
+    "Sources/SaytileApp/SettingsView.swift",
+    "packaging/BUILD_NUMBER"
+  ],
+  "build_metadata": {
+    "before": "574",
+    "after": "575"
+  },
+  "runtime_change": "SettingsView removes the hardcoded internal-testing prefix",
+  "patch_sha256": "7752925542100bf87e95847710dd3a803f8fff6fadd8a328a3d4f3279b3dfb02",
+  "asr_storage_and_update_code_unchanged": true,
+  "scope": "source equivalence only; final signed 575 update tests have separate receipts",
+  "initial_scope_assertion": "source-scope-initial.log"
+}

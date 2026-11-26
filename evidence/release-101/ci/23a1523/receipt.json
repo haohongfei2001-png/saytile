@@ -1,0 +1,104 @@
+{
+  "status": "PASS",
+  "source": "23a1523f185b2ba2c594a354bff070853be1c771",
+  "product_source": "3e1cc6961df4da01a1c52310755a7dd215ef4310",
+  "product_build": 577,
+  "workflows": [
+    {
+      "id": 45599452954,
+      "name": "Saytile native",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/45599452954",
+      "jobs": [
+        {
+          "id": 139154180590,
+          "name": "foreground",
+          "conclusion": "success"
+        },
+        {
+          "id": 139154181048,
+          "name": "native",
+          "conclusion": "success"
+        },
+        {
+          "id": 139154181116,
+          "name": "swift-tests",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 45599453131,
+      "name": "Black brand option 2",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/45599453131",
+      "jobs": [
+        {
+          "id": 139154160057,
+          "name": "native-brand",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 45599452994,
+      "name": "Saytile design contracts",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/45599452994",
+      "jobs": [
+        {
+          "id": 139154159181,
+          "name": "data-and-prototype",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 45599452911,
+      "name": "Saytile Cloud",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/45599452911",
+      "jobs": [
+        {
+          "id": 139154162872,
+          "name": "native-gateway",
+          "conclusion": "success"
+        },
+        {
+          "id": 139154163158,
+          "name": "gateway",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "swift_testing": {
+    "batches": [
+      4,
+      13,
+      12,
+      1,
+      9,
+      8,
+      537
+    ],
+    "total": 584,
+    "passed": 584,
+    "failed": 0
+  },
+  "xctest": {
+    "total": 30,
+    "passed": 30,
+    "failed": 0
+  },
+  "all_workflows_success": true,
+  "brand_manifest_matched": 2892,
+  "raw_sha256": {
+    "native-run-logs.zip": "9c100640d94f805c978c1b31edeb2ecfc8d560ef7138035dc76607bbaa06324d",
+    "brand-run-logs.zip": "03c6ac6bdf56efcbed8edd07914a3c81524d095e4f4c5e145b7b8cb77c874198"
+  },
+  "scope": "Complete-Xcode suites and disposable GUI native/foreground; Cloud workflow only local protocol fixtures, not actual paid cloud. Virtual kernel sleep remains BLOCKED.",
+  "original_failures_retained": true,
+  "assertions_workflow_unchanged": true,
+  "transport_download": "initial direct ZIP download timed out; existing proxy download succeeded; no CI rerun"
+}

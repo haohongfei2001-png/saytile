@@ -1,0 +1,12 @@
+{
+  "status": "FAIL_MANIFEST_STALE",
+  "product_brand_assets": "PASS",
+  "mismatched": [
+    ".github/workflows/native.yml",
+    "docs/delivery/release-101/DISTRIBUTION.md",
+    "scripts/test-update-standard-ui.py",
+    "tests/fixtures/StandardUpdateUIProbe.swift"
+  ],
+  "remedy": "regenerate tracked file manifest after final changes; preserve all integrity assertions",
+  "test_runner": 138891488709
+}

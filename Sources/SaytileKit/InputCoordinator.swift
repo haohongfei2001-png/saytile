@@ -29,7 +29,7 @@ public enum NativeInputError: Error, LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .permission: "请在系统设置中允许 Saytile 使用辅助功能；复制无需此权限。"
-        case .noTarget: "请先在目标应用的输入框放好光标，再使用快捷键连接。"
+        case .noTarget: "请先在目标应用的输入框放好光标，再试一次插入；也可以复制这段文字。"
         case .unsupported: "此输入框不支持安全插入，请使用复制。"
         case .selection: "目标中有选中文字，请先放置光标；Saytile 不会替换已有选区。"
         case .sensitive: "密码框和终端不支持自动插入，请使用复制。"
@@ -85,12 +85,16 @@ protocol InputAccess: AnyObject {
     func stopObserving()
     // Bounded, ephemeral witness; never persisted. Unknown text/boundaries forbid ownership.
     func textWitness(at expected: InputTargetSnapshot) -> String?
+    // Only post-write settlement uses this throwing form. A transient snapshot
+    // read error is distinct from a readable but changed target or full field.
+    func checkedTextWitness(at expected: InputTargetSnapshot) throws -> String?
     func replaceOwned(_ expectedText: String, with replacement: String, start: Int,
                       witness: String, at expected: InputTargetSnapshot, isCurrent: @MainActor () -> Bool) throws -> Bool
 }
 extension InputAccess {
     func snapshotAfterIssuedWebInsertion() throws -> InputTargetSnapshot { try snapshot() }
     func textWitness(at expected: InputTargetSnapshot) -> String? { nil }
+    func checkedTextWitness(at expected: InputTargetSnapshot) throws -> String? { textWitness(at: expected) }
     func replaceOwned(_ expectedText: String, with replacement: String, start: Int,
                       witness: String, at expected: InputTargetSnapshot, isCurrent: @MainActor () -> Bool) throws -> Bool { false }
 
@@ -278,7 +282,7 @@ public final class NativeInputCoordinator {
             guard generation == expectedGeneration, gapSequence == nil || gapSequence == observedEditSequence else { return false }
             do {
                 guard try access.snapshot() == target,
-                      access.textWitness(at: target)?.utf8.elementsEqual(witness.utf8) == true else { return false }
+                      try access.checkedTextWitness(at: target)?.utf8.elementsEqual(witness.utf8) == true else { return false }
             } catch NativeInputError.unsupported {
                 // No mutation while the AX field is unreadable. After any gap the
                 // same binding must give two new full witnesses without an edit,

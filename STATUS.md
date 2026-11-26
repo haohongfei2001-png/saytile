@@ -1,25 +1,18 @@
-# Saytile 1.0.0（572）已正式发行
+# Saytile 1.1.0（578）— 开发候选
 
-[正式 Release](https://github.com/haohongfei2001-png/saytile/releases/tag/v1.0.0) · [官网下载](https://saytile.com/#start) · [完整验收](docs/delivery/release-100/ACCEPTANCE.md)
+基于 PR #56 的 `codex/release-101` / `c7b7a99478f4e33b554adf2840980b376ed38e68`，完整保留 1.0.1（577）有效修复。开发分支：`pro/release-110`，开发 [PR #57](https://github.com/haohongfei2001-png/saytile/pull/57)。正式下载仍为 1.0.0（572）；1.1.0 尚未制作正式签名安装包或发行。
 
-## 发行状态
+## 本轮实际实现
 
-- PR #55 已合并到 main，合并提交 `0aa5efd4f8c14e5fe2bb6279968cdd8f6aee3553`；v1.0.0 为正式、非草稿、非预发行 Release。#52–#54 的生产实现与历史来源保留。
-- 实际签名产品源码 `42d8e98eaf04a56d34a36cc1aca2aff7061150f4`，SourceDirty=false；后续提交仅更新测试夹具、验收和发行资料，193个产品文件摘要一致。
-- Pages 已成功部署。真实官网25项交互、15项运行资源逐字节摘要通过；实际点击下载65,662,466字节DMG，摘要与签名实测包完全相同。
-- DMG SHA-256：`60e4abf60618d510c7f99d8e92a6ec456f16840f22cc0fcd7eb74ac729c9dba2`。
-- 用户当前0.20（533）未被替换；没有访问或修改真实数据库、录音或Keychain。
+- 新自然段按约30秒的实际语音静音划分，短停顿和跨午夜不中断自然表达；历史段落身份、编辑、收藏和时间组不重组。
+- 产品复制和手动插入共用完整自然段文本快照，包含屏幕外成员、呈现时文字、用户修改及英文片段间空格；选中历史文字取用对应完整自然段，系统复制仍取选区。
+- Qwen暖保留延长至180秒；暂停、睡眠、关闭及内存压力释放空闲工作进程；正在定稿时延后释放，不丢尾音。首窗复用已有有界PCM读取，避免语音已到达却先解码前导静音。
+- 设置收起高级服务、兼容模型、外部输入和工程诊断；保留已配置服务和资料。官网文字对齐面板表达与复制，下载仍指向真实已发布版本。
 
-## 实际通过
+## 验证状态
 
-同批15段原速CER8.10%、420段CER8.53%，全部最终文字与571基线相同。真实Qwen原速到隔离AX目标11次EOS前输入；原音、编辑、前后文字和零发送保护通过。904.8秒连续运行44/44归档；最终签名App56次按钮、9次菜单交互通过。0.18/533副本升级、回退、再升级、DMG安装及损坏包拒绝通过。
+新增自然段边界、升级保留、全段取用、原生选区、模型释放和首窗管道回归。macOS与官网CI按提交运行，结果及保留的原始失败以 [PR #57 Checks](https://github.com/haohongfei2001-png/saytile/pull/57/checks) 为准；尚无本轮真实M系列首字延迟、长句停顿、内存和能耗测量，不以源码策略变化宣称实测速率提升。
 
-最终e988117七项CI全部SUCCESS，579项Swift Testing、30项XCTest零失败。前台AppKit、WKWebView、TextEdit、Chrome、Edge、Safari复核通过；前次Safari超时FAIL原件继续保留，不放宽保护或重发未确认文字。
+签名、公证、Gatekeeper、实体麦克风/睡眠/设备切换及最终安装升级由本机完成。公证凭据缺失不阻塞源码开发。已发行1.0.0和未发行1.0.1的既有证据分别保留在 `docs/delivery/release-100` 与 `docs/delivery/release-101`，不作为本轮重测结果。
 
-## 已披露限制
-
-Developer ID及安全时间戳通过，**尚未公证**；Gatekeeper结果为Unnotarized Developer ID。按用户本轮明确允许的发行边界提供系统单App“仍要打开”说明，不关闭Gatekeeper、不移除隔离属性。
-
-首轮一次短句首显5.45秒，三对复核未重现，不能保证所有启动两秒内出字；长句仍会自然修订。Safari等网页在AX证据不完整时会安全暂停自动输入，文字保留且可复制。五个原有空定稿子段保留失败与重试。
-
-Mac合盖内置麦克风、8GB实体机、付费云端/iCloud本轮NOT_RUN。Sparkle新包不自动推送，以官网和Release手动下载更新。完整原始结果、失败及发行收据位于evidence/release-100/。
+本机最少接续事项见 [LOCAL-HANDOFF](docs/delivery/release-110/LOCAL-HANDOFF.md)。

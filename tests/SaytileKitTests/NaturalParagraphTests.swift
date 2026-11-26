@@ -23,13 +23,15 @@ struct NaturalParagraphTests {
         let store = try SaytileStore(directory: dir)
         try check(store.initialTimelineIdleSeconds == 60)
         _ = try await add(store, noon, 4, "开头")
-        _ = try await add(store, noon.addingTimeInterval(18.999), 1.001, "短停顿")
-        _ = try await add(store, noon.addingTimeInterval(35), 5, "新自然段")
-        _ = try await add(store, noon.addingTimeInterval(99.999), 1.001, "仍同时间组")
-        _ = try await add(store, noon.addingTimeInterval(161), 1, "新时间组")
+        _ = try await add(store, noon.addingTimeInterval(33.999), 1.001, "短停顿")
+        _ = try await add(store, noon.addingTimeInterval(65), 5, "新自然段")
+        _ = try await add(store, noon.addingTimeInterval(129.999), 1.001, "仍同时间组")
+        _ = try await add(store, noon.addingTimeInterval(191), 1, "新时间组")
         let entries = try await store.timelinePage().entries
         try check(entries.map(\.paragraphID) == [1, 1, 3, 4, 5])
         try check(entries.map(\.group) == [1, 1, 1, 1, 5])
+        try check(abs(entries[1].recording.createdAt.timeIntervalSince(entries[0].speechEnd) - 29.999) < 0.001)
+        try check(entries[2].recording.createdAt.timeIntervalSince(entries[1].speechEnd) == 30)
         try check(entries[1].paragraphStart == noon)
         try check(try store.timelineCopy(group: 1, through: 4, displayed: [:]) == "开头短停顿\n新自然段\n仍同时间组")
         let dispatchSnapshots = try store.timelineGroupSnapshots(group: 1, through: 4)
@@ -62,12 +64,12 @@ struct NaturalParagraphTests {
         let dir = directory(); defer { try? FileManager.default.removeItem(at: dir) }
         let store = try SaytileStore(directory: dir)
         _ = try await add(store, noon, 1, "上一段。")
-        let head = try await add(store, noon.addingTimeInterval(20), 1, "本段开头🙂")
-        _ = try await add(store, noon.addingTimeInterval(22), 1, "继续。")
+        let head = try await add(store, noon.addingTimeInterval(31), 1, "本段开头🙂")
+        _ = try await add(store, noon.addingTimeInterval(33), 1, "继续。")
         let shown = try await store.timelinePage().entries
         try check(Set(shown.map(\.group)).count == 1 && shown.map(\.paragraphID) == [1, 2, 2])
-        _ = try await add(store, noon.addingTimeInterval(24), 1, "点击之后的新话。")
-        _ = try await add(store, noon.addingTimeInterval(42), 1, "下一个自然段。")
+        _ = try await add(store, noon.addingTimeInterval(35), 1, "点击之后的新话。")
+        _ = try await add(store, noon.addingTimeInterval(66), 1, "下一个自然段。")
         try await store.saveEdit(recordingID: head.id, text: "用户改字\n保留手工换行🙂")
         let visible: [Int64: String] = [1: "不能混入上一段", 2: "点击时眼前🙂", 3: "继续。", 5: "不能混入下一段"]
         try check(try store.paragraphCopy(paragraphID: 2, through: 3, displayed: visible) == "点击时眼前🙂继续。")
@@ -125,7 +127,7 @@ struct NaturalParagraphTests {
         let old = try SaytileStore(directory: dir)
         try await old.setTimelineIdleSeconds(120)
         let a = try await add(old, noon, 1, "旧原文")
-        _ = try await add(old, noon.addingTimeInterval(91), 1, "旧标题仍同组")
+        _ = try await add(old, noon.addingTimeInterval(21), 1, "旧标题仍同组")
         try await old.saveEdit(recordingID: a.id, text: "旧人工稿")
         try await old.setPinned(recordingID: a.id, pinned: true)
         try await old.saveDraft(recordingID: a.id, text: "草稿")
@@ -155,12 +157,62 @@ struct NaturalParagraphTests {
         try await custom.close()
     }
 
+    @Test func upgradeKeepsExistingParagraphsAndReplacesOnlyFutureBoundaryPolicy() async throws {
+        let dir = directory(); defer { try? FileManager.default.removeItem(at: dir) }
+        let seeded = try SaytileStore(directory: dir)
+        let first = try await add(seeded, noon, 1, "旧第一段")
+        _ = try await add(seeded, noon.addingTimeInterval(21), 1, "旧第二段")
+        let userVersion = try await seeded.saveEdit(recordingID: first.id, text: "保留本人修改🙂")
+        try await seeded.setPinned(recordingID: first.id, pinned: true)
+        try await seeded.saveDraft(recordingID: first.id, text: "保留未完成草稿")
+        try await seeded.close()
+
+        // Reproduce a shipped 15-second archive: existing paragraph identities
+        // and a manually hidden break must survive installation of the new trigger.
+        let legacy = try StoreDatabase(url: dir.appendingPathComponent("Saytile.sqlite"))
+        try legacy.execute("UPDATE timeline_paragraphs SET paragraph_start=2,break_hidden=1 WHERE position=2")
+        let oldMetadata = try legacy.rows("SELECT * FROM timeline_paragraphs ORDER BY position")
+        try legacy.script("""
+            DROP TRIGGER timeline_natural_paragraph;
+            CREATE TRIGGER timeline_natural_paragraph AFTER INSERT ON transcript_timeline
+            WHEN NEW.recording_id IS NOT NULL BEGIN
+              INSERT INTO timeline_paragraphs(position,paragraph_start)
+              VALUES(NEW.position,COALESCE((
+                SELECT CASE WHEN prior.day=NEW.day AND prior.utc_offset=NEW.utc_offset
+                  AND NEW.started>=prior.started
+                  AND NEW.started-COALESCE(prior.ended,prior.started+r.total_frames/r.sample_rate)<15
+                  THEN p.paragraph_start END
+                FROM transcript_timeline prior JOIN recordings r ON r.id=prior.recording_id
+                JOIN timeline_paragraphs p ON p.position=prior.position
+                WHERE prior.position<NEW.position ORDER BY prior.position DESC LIMIT 1),NEW.position));
+            END;
+            """)
+        try legacy.close()
+
+        let upgraded = try SaytileStore(directory: dir)
+        let existing = try await upgraded.timelinePage().entries
+        try check(existing.map(\.paragraphID) == [1, 2] && existing[1].paragraphBreakHidden)
+        try check(existing[0].recording.preferredRevisionID == userVersion.id && existing[0].recording.isPinned)
+        try check(try await upgraded.loadDraft(recordingID: first.id) == "保留未完成草稿")
+        let continuation = try await add(upgraded, noon.addingTimeInterval(41), 1, "二十秒内继续")
+        _ = try await add(upgraded, noon.addingTimeInterval(72), 1, "三十秒后另起")
+        let current = try await upgraded.timelinePage().entries
+        try check(current.map(\.paragraphID) == [1, 2, 2, 4] && current[2].id == continuation.id,
+                  "New captures use 30 seconds while prior paragraph identities stay unchanged")
+        try await upgraded.close()
+
+        let inspected = try StoreDatabase(url: dir.appendingPathComponent("Saytile.sqlite"))
+        try check(try inspected.rows("SELECT * FROM timeline_paragraphs WHERE position<=2 ORDER BY position") == oldMetadata)
+        try check(try inspected.rows("PRAGMA foreign_key_check").isEmpty)
+        try inspected.close()
+    }
+
     @MainActor @Test func multiRecordingEditValidatesEveryOwnerAndPreservesVersions() async throws {
         let dir = directory(); defer { try? FileManager.default.removeItem(at: dir) }
         let store = try SaytileStore(directory: dir)
         let a = try await add(store, noon, 1, "甲😀")
         let b = try await add(store, noon.addingTimeInterval(2), 1, "乙")
-        let other = try await add(store, noon.addingTimeInterval(20), 1, "另段")
+        let other = try await add(store, noon.addingTimeInterval(34), 1, "另段")
         do {
             _ = try store.editArchiveParagraph(id: 1, edits: [.init(id: a.id, before: "甲😀", after: "错误修改"), .init(id: other.id, before: "另段", after: "跨段")])
             throw Failure(description: "Accepted an edit from another paragraph")
@@ -183,7 +235,7 @@ struct NaturalParagraphTests {
         let dir = directory(); defer { try? FileManager.default.removeItem(at: dir) }
         let store = try SaytileStore(directory: dir)
         _ = try await add(store, noon, 1, "前句")
-        let b = try await add(store, noon.addingTimeInterval(20), 1, "眼前原稿")
+        let b = try await add(store, noon.addingTimeInterval(31), 1, "眼前原稿")
         let ticket = try await store.beginRecognition(recordingID: b.id)
         try await store.applyRecognition(ticket: ticket, text: "后台机器修订", isFinal: false)
         let changed = try store.editArchiveParagraph(id: 2, edits: [.init(id: b.id, before: "眼前原稿", after: "本人改字")])
@@ -233,12 +285,12 @@ struct NaturalParagraphTests {
         let dir = directory(); defer { try? FileManager.default.removeItem(at: dir) }
         let store = try SaytileStore(directory: dir)
         _ = try await add(store, noon, 1, "前段")
-        let b = try await add(store, noon.addingTimeInterval(20), 1, "本段开头")
+        let b = try await add(store, noon.addingTimeInterval(31), 1, "本段开头")
         try await store.saveEdit(recordingID: b.id, text: "")
-        let c = try await add(store, noon.addingTimeInterval(22), 1, "继续")
+        let c = try await add(store, noon.addingTimeInterval(33), 1, "继续")
         for index in 0..<65 {
-            let r = try await store.createRecording(createdAt: noon.addingTimeInterval(24 + Double(index)))
-            try await store.finishRecording(id: r.id, speechEndedAt: noon.addingTimeInterval(25 + Double(index)))
+            let r = try await store.createRecording(createdAt: noon.addingTimeInterval(35 + Double(index)))
+            try await store.finishRecording(id: r.id, speechEndedAt: noon.addingTimeInterval(36 + Double(index)))
             try await store.saveEdit(recordingID: r.id, text: "")
         }
         let panel = try await store.panelTimeline(.latest)
@@ -259,8 +311,8 @@ struct NaturalParagraphTests {
         let dir = directory(); defer { try? FileManager.default.removeItem(at: dir) }
         let store = try SaytileStore(directory: dir)
         _ = try await add(store, noon, 1, "第一段")
-        let b = try await add(store, noon.addingTimeInterval(20), 1, "第二段")
-        let c = try await add(store, noon.addingTimeInterval(22), 1, "接续")
+        let b = try await add(store, noon.addingTimeInterval(31), 1, "第二段")
+        let c = try await add(store, noon.addingTimeInterval(33), 1, "接续")
         let ticket = try await store.beginRecognition(recordingID: b.id)
         try await store.applyRecognition(ticket: ticket, text: "第二段有新增", isFinal: false)
         let originalCount = try await store.revisions(recordingID: b.id).count
@@ -303,7 +355,7 @@ struct NaturalParagraphTests {
         try check(try await store.recording(id: c.id)?.isPinned == false)
         try check(try await store.cleanupCandidates(olderThan: noon.addingTimeInterval(1000)).map(\.id) == [a.id, b.id, c.id])
         try check(try await store.toggleParagraphPinned(paragraphID: 1))
-        let d = try await add(store, noon.addingTimeInterval(20))
+        let d = try await add(store, noon.addingTimeInterval(35))
         try check(try await store.recording(id: d.id)?.isPinned == false)
         try check(try await store.cleanupCandidates(olderThan: noon.addingTimeInterval(1000)).map(\.id) == [d.id])
         try await store.close()
@@ -317,11 +369,16 @@ struct NaturalParagraphTests {
         _ = try await add(store, start.addingTimeInterval(1), 1)
         _ = try await add(store, start.addingTimeInterval(0.9), 1)
         let first = try await store.timelinePage().entries
-        try check(Set(first.map(\.paragraphID)).count == 3 && Set(first.map(\.group)).count == 3)
+        try check(first.map(\.paragraphID) == [1, 1, 3] && Set(first.map(\.group)).count == 3,
+                  "A civil-day boundary keeps continuous speech together; clock reversal remains a boundary")
+        let archived = try await store.archiveParagraphPage().paragraphs
+        try check(archived.map(\.id) == [1, 3] && archived[0].memberCount == 2,
+                  "Cross-midnight speech remains one complete archive paragraph")
+        try check(try store.paragraphCopy(paragraphID: 1, displayed: [:]) == "正文正文")
         let a = try await store.createRecording(createdAt: start.addingTimeInterval(100))
         try await store.registerAudioChunk(recordingID: a.id, relativePath: a.id.uuidString + "/test.wav", frames: 160_000)
         try await store.finishRecording(id: a.id)
-        _ = try await add(store, start.addingTimeInterval(124.999), 1)
+        _ = try await add(store, start.addingTimeInterval(139.999), 1)
         let last = try await store.timelinePage().entries
         try check(last[3].paragraphID == last[4].paragraphID && last[3].speechEnd == start.addingTimeInterval(110))
         try await store.close()

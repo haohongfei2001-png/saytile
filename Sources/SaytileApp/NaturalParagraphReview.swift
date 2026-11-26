@@ -15,7 +15,7 @@ extension AppDelegate {
         }
         try await model.store.setTimelineIdleSeconds(60)
         let base = Calendar.current.startOfDay(for: Date()).addingTimeInterval(10 * 3600)
-        let starts: [TimeInterval] = [0, 4, 20, 81]
+        let starts: [TimeInterval] = [0, 4, 35, 96]
         var texts = ["我们🙂先把这个想法记下来，", "稍微停顿之后继续，文字仍然属于同一段。",
                      "隔了一会儿再说，这是同一个时间组里的新自然段。", "一分钟后开启另一段输入，回看时再显示新的时间。"]
         var recordings: [Recording] = []
@@ -43,7 +43,7 @@ extension AppDelegate {
               initial[1].paragraphID != initial[2].paragraphID,
               initial[2].paragraphID != initial[3].paragraphID,
               initial[0].group == initial[2].group, initial[2].group != initial[3].group else {
-            throw ReviewFailure("3/15/60-second speech-end gaps did not form three paragraphs and two time groups")
+            throw ReviewFailure("3/30/60-second speech-end gaps did not form three paragraphs and two time groups")
         }
         let ids = recordings.map(\.id)
         let sourceText = texts[0] + texts[1] + "\n" + texts[2] + "\n" + texts[3]
@@ -51,7 +51,7 @@ extension AppDelegate {
               model.archiveGroups.flatMap(\.paragraphs).count == 3, model.archiveGroups.count == 2 else {
             throw ReviewFailure("archive and live panel did not use the same paragraph identities")
         }
-        var checks: [String] = ["ASR-origin seed", "three-second continuation", "15-second paragraph", "60-second time group"] + copyChecks
+        var checks: [String] = ["ASR-origin seed", "three-second continuation", "30-second paragraph", "60-second time group"] + copyChecks
         try await reviewValidatedWindow(InputPanelWindowView(model: model), size: .init(width: 340, height: 360),
             name: "natural-panel", output: output, validation: { host in
                 let scroll = try self.compactTranscript(in: host)
@@ -211,7 +211,7 @@ extension AppDelegate {
         let receipt: [String: Any] = ["status": "PASS", "source": Bundle.main.object(forInfoDictionaryKey: "SaytileSourceRevision") as? String ?? "unpackaged",
             "syntheticOnly": true, "asrExecuted": false, "microphoneOpened": false, "privatePasteboard": true,
             "captureScope": "owned nonactivating native views rendered using AppKit cacheDisplay; not a full-desktop screenshot",
-            "speechEndGapsSeconds": [3, 15, 60], "recordings": 4, "paragraphs": 3, "timeGroups": 2,
+            "speechEndGapsSeconds": [3, 30, 60], "recordings": 4, "paragraphs": 3, "timeGroups": 2,
             "checks": checks, "archiveControls": archiveInventory,
             "nativeControlActions": ["status": hasControlProbe ? "PASS" : "NOT_RUN",
                                      "reason": hasControlProbe ? "independent owned-window AX inspection and AXPress, including panel.copy" : "SAYTILE_UI_CONTROL_PROBE not configured; panel copy/star/play model actions only"],
@@ -234,7 +234,8 @@ extension AppDelegate {
         let entries = try await model.store.timelinePage().entries
         let paragraphs = model.archiveGroups.flatMap(\.paragraphs).sorted { $0.id < $1.id }
         guard entries.count == 3, Set(entries.map(\.group)).count == 1, paragraphs.count == 2,
-              let latest = paragraphs.last, latest.page.entries.map(\.id) == [latestTicket.recordingID],
+              let historical = paragraphs.first, let latest = paragraphs.last,
+              latest.page.entries.map(\.id) == [latestTicket.recordingID],
               latest.text == latestText, model.canCopyLatestParagraph else {
             throw ReviewFailure("same-group copy fixture did not contain two distinct natural paragraphs")
         }
@@ -248,7 +249,8 @@ extension AppDelegate {
                 editor.commandPasteboard = board
                 @MainActor func copyPanel() async throws {
                     if controls { _ = try await self.performControl("panel.copy", in: host) }
-                    else { model.copyTimeline(selection: scroll.selectionSnapshot, displayed: scroll.rendered.displayed) }
+                    else { model.copyTimeline(paragraphID: scroll.selectedParagraphID,
+                        rendered: scroll.rendered.spans.map(\.entry), displayed: scroll.rendered.displayed) }
                 }
                 editor.setSelectedRange(.init(location: 0, length: 0))
                 let origin = scroll.contentView.bounds.origin
@@ -263,8 +265,24 @@ extension AppDelegate {
                 guard emoji.location != NSNotFound, emoji.length == 2 else { throw ReviewFailure("UTF-16 selection fixture is missing") }
                 editor.setSelectedRange(emoji)
                 try await copyPanel()
+                guard board.string(forType: .string) == historical.text, editor.selectedRange() == emoji else {
+                    throw ReviewFailure("panel button did not copy the complete historical paragraph selected by its emoji")
+                }
+                editor.copy(nil)
                 guard board.string(forType: .string) == "🙂", editor.selectedRange() == emoji else {
-                    throw ReviewFailure("panel button did not prioritize the older paragraph's emoji selection")
+                    throw ReviewFailure("native system copy no longer preserves the exact emoji selection")
+                }
+                guard let latestSpan = scroll.rendered.spans.last,
+                      latestSpan.range.location > emoji.location else {
+                    throw ReviewFailure("cross-paragraph selection fixture is missing")
+                }
+                let acrossParagraphs = NSRange(location: emoji.location,
+                    length: latestSpan.range.location + 2 - emoji.location)
+                editor.setSelectedRange(acrossParagraphs)
+                try await copyPanel()
+                guard board.string(forType: .string) == historical.text,
+                      editor.selectedRange() == acrossParagraphs else {
+                    throw ReviewFailure("cross-paragraph product copy did not use the selection's starting paragraph")
                 }
                 editor.setSelectedRange(.init(location: 0, length: 0))
                 try await copyPanel()
@@ -306,7 +324,9 @@ extension AppDelegate {
                 try self.captureReview(host, name: "same-group-archive-copy", output: output)
             }, interaction: nil)
         return ["same time group, two paragraphs: panel copies latest paragraph only",
-                "panel button gives UTF-16 emoji selection priority over latest paragraph",
+                "panel button copies the complete historical paragraph identified by an emoji selection",
+                "native system copy retains the exact emoji selection",
+                "cross-paragraph product selection copies its starting paragraph only",
                 "late ASR revision preserves copied paragraph snapshot",
                 "panel/archive context copy agree on the same natural paragraph"]
     }

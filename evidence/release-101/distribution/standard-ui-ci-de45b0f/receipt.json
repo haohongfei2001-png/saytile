@@ -1,0 +1,19 @@
+{
+  "status": "BLOCKED_CI_CAPACITY",
+  "standard_ui": "NOT_RUN",
+  "run_id": 45466204990,
+  "job_id": 138701660848,
+  "source": "de45b0fb3c83e1fa13b6067a47b0342772e309ed",
+  "runner_id": 0,
+  "steps_executed": 0,
+  "fixture_fix_executed": false,
+  "ui_or_model_started": false,
+  "workflow_retriggered_by_agent": false,
+  "diagnosis": "GitHub hosted macOS arm64 runner was never acquired; no product or fixture execution took place.",
+  "original_metadata_sha256": {
+    "native-job.json": "a5f373e8f890a0c726c14eb87d71b53ff63b8da764013755cbd048960951044e",
+    "check-run.json": "4bb173592ab80ed937e14d8ba83097e310f945f58ed519f109e30c4b92a565f6",
+    "annotations.json": "7c2a9c355442da340db99ba8d45546719d3525f79d250e7c68c7c370e95df2a9"
+  },
+  "remaining": "Run the unchanged safety/UI assertions on an available independent CI GUI session; do not infer PASS from the local compiler or network-only check."
+}

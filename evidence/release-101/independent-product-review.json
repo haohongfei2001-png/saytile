@@ -1,0 +1,21 @@
+{
+  "status": "NO_NEW_P0_P1_IN_REVIEWED_DIFF",
+  "reviewer": "independent release101_input agent",
+  "baseline": "f3baa0a255931dbb16291690699790e3d54f8bde",
+  "product": "8f25ea3be642263daf22ff297f337026395840a6",
+  "paths": [
+    "Sources/SaytileApp/AppModel.swift",
+    "Sources/SaytileApp/SaytileApp.swift",
+    "Sources/SaytileApp/LocalModelSettings.swift",
+    "Sources/SaytileApp/SettingsView.swift",
+    "Sources/SaytileApp/AppUpdateController.swift"
+  ],
+  "findings": [
+    "First-use waits for recovery; marker persisted before callback; established records do not retrigger",
+    "Denied mic recovery excludes starting/listening/speaking pause path",
+    "Readiness only queried; selection checked after await; no recognition or download starts",
+    "Sparkle protocol selector agrees with pinned SDK; feed verification and production HTTPS preserved",
+    "Version comes from actual bundle metadata; identity/storage/Keychain unchanged"
+  ],
+  "scope": "Static review only; no additional runtime PASS; does not cover the new foreground transient or unfinished standard update UI"
+}

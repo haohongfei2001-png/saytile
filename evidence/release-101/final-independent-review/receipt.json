@@ -1,0 +1,82 @@
+{
+  "utc": "2026-11-25T04:17:02.097844+00:00",
+  "review_kind": "bounded read-only source review; AX implementation author performing a separate review pass",
+  "base_sha": "f3baa0a255931dbb16291690699790e3d54f8bde",
+  "product_sha": "2d12129f2031fdf827d51fa1796d155e79243e07",
+  "candidate": "1.0.1 (576)",
+  "observed_integration_head": "27e758662ec00708d56ae063561aaec0dc578b74",
+  "changed_product_files": [
+    "Sources/SaytileApp/AppModel.swift",
+    "Sources/SaytileApp/AppUpdateController.swift",
+    "Sources/SaytileApp/LocalModelSettings.swift",
+    "Sources/SaytileApp/SaytileApp.swift",
+    "Sources/SaytileApp/SettingsView.swift",
+    "Sources/SaytileKit/InputAccessibility.swift",
+    "Sources/SaytileKit/InputCoordinator.swift",
+    "packaging/BUILD_NUMBER",
+    "packaging/VERSION"
+  ],
+  "source_receipts": {
+    "Sources/SaytileApp/AppModel.swift": {
+      "blob": "81185ecabedb9cc7131dd657255d19a57b227cf0",
+      "sha256": "be401004b0c29ad7be5f998793ec81fea472c4d9172accb73bafe0887e3ff517"
+    },
+    "Sources/SaytileApp/AppUpdateController.swift": {
+      "blob": "033dbcc67d317df150d212ddd9d63d91aad6898b",
+      "sha256": "ff85cccc7c14a84fbcb114ed520a042b45433bb68edd59050e1bc1f26f26313c"
+    },
+    "Sources/SaytileApp/LocalModelSettings.swift": {
+      "blob": "49896c1efc7b37d9ac84086c7a41d6f46aac0fa8",
+      "sha256": "659382e11235c0b50a7ab8628e75a04f3cb57445a7eec31dae81879bfb72cec8"
+    },
+    "Sources/SaytileApp/SaytileApp.swift": {
+      "blob": "c32223cec9ef083e38f1149047e5b401e2a69bef",
+      "sha256": "4f760e26155e941b440097f2cf6b5f92eb91c32289c3663b48213f67f9fee118"
+    },
+    "Sources/SaytileApp/SettingsView.swift": {
+      "blob": "55a07de7f6cc9235253bdd2086c7bb4222dc725c",
+      "sha256": "c4f6fa06c51cf767935d63ee9c75e56c4c59bf57c6866c8b2ce240620376db8f"
+    },
+    "Sources/SaytileKit/InputAccessibility.swift": {
+      "blob": "e1e20cd7085336f2a8dc6c80c372b4c36557a46c",
+      "sha256": "e3cd8d2fe44572d2960c1be7a53c6496c4e74bdfbfd33650d658cb2cc3ca1219"
+    },
+    "Sources/SaytileKit/InputCoordinator.swift": {
+      "blob": "1ee48294ea8e1d0412c32b83ba0b14cdba673482",
+      "sha256": "bd9481c6ac0c95b77a0a5a7963c33c30f8ef0968153a65e9dd7d94697bdd5ecf"
+    },
+    "packaging/BUILD_NUMBER": {
+      "blob": "bb7a7c1b1ad9251947aaf7cd82880eabdd75f68c",
+      "sha256": "445ad1550e907d1a7a2dc8482817a19f4db07e09a2b6d3ca117281be53da9870"
+    },
+    "packaging/VERSION": {
+      "blob": "7dea76edb3dc51b6e5e8223e9f941a35c1e364d6",
+      "sha256": "44e161e4495cac2cf7858043e9e6418e9579f0ddcfae826f9a372622968ce066"
+    }
+  },
+  "worktree_product_diff_from_frozen_sha": [],
+  "app_source_unchanged_from_575": true,
+  "unchanged_contract_sources": {
+    "Sources/SaytileKit/Store.swift": true,
+    "Sources/SaytileKit/StoreSQLite.swift": true,
+    "Sources/SaytileKit/SaytileStorageProfile.swift": true,
+    "Sources/SaytileKit/CloudCredentials.swift": true,
+    "Sources/SaytileKit/AudioCapture.swift": true,
+    "Sources/SaytileKit/LocalASRProvider.swift": true,
+    "Sources/SaytileKit/SingleTranscriptEngine.swift": true,
+    "Sources/SaytileKit/AppUpdateConfiguration.swift": true,
+    "packaging/Info.plist": true,
+    "Package.swift": true
+  },
+  "findings": {
+    "new_P0": 0,
+    "new_P1": 0
+  },
+  "scope_limits": [
+    "No tests, ASR, builds, App, browser, or user data accessed in this review",
+    "No claim that original 880840e Chrome incident is fixed; role-read-vs-enabled-false cause remains UNKNOWN",
+    "Unified final CI and standard Sparkle dialog result not inferred from this review",
+    "Prior runtime receipts keep their original tested SHA; final artifact release decision remains root-owned",
+    "AX review is a new review pass by its implementation author, not an independent second author"
+  ]
+}

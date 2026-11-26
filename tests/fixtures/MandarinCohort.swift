@@ -4,7 +4,8 @@ import Foundation
 
 @testable import SaytileKit
 
-// Quality-only fast replay: timing comes exclusively from separate wall-paced AppKit observations.
+// Explicitly label accelerated quality replay versus wall-clock-paced PCM input.
+// Neither mode is an AppKit visibility measurement; use LocalStreamProbe for that.
 @main struct MandarinCohort {
   struct Row: Decodable {
     let id: String
@@ -12,8 +13,10 @@ import Foundation
   }
   static func main() async throws {
     let a = CommandLine.arguments
-    guard a.count == 8, let m = LocalASRID(rawValue: a[1]), ["product", "direct"].contains(a[2])
+    guard (8...9).contains(a.count), let m = LocalASRID(rawValue: a[1]), ["product", "direct"].contains(a[2])
     else { exit(64) }
+    let pacing = a.count == 9 ? a[8] : "accelerated"
+    guard ["accelerated", "realtime"].contains(pacing) else { exit(64) }
     let wav = URL(fileURLWithPath: a[4])
     let weights = URL(fileURLWithPath: a[5])
     let helpers = URL(fileURLWithPath: a[6])
@@ -39,6 +42,8 @@ import Foundation
       let store = try SaytileStore(directory: tmp)
       let reader = try AVAudioFile(
         forReading: file, commonFormat: .pcmFormatFloat32, interleaved: false)
+      guard reader.processingFormat.sampleRate == 16000,
+            reader.processingFormat.channelCount == 1, reader.length > 0 else { exit(67) }
       guard
         let buf = AVAudioPCMBuffer(
           pcmFormat: reader.processingFormat, frameCapacity: AVAudioFrameCount(reader.length))
@@ -55,8 +60,16 @@ import Foundation
       }
       let n = Int(buf.frameLength)
       let start = Date()
+      let clock = ContinuousClock()
+      let began = clock.now
+      var maximumFeedLateness = 0.0
       for i in stride(from: 0, to: n, by: 3200) {
         let count = min(3200, n - i)
+        if pacing == "realtime" {
+          let deadline = began + .seconds(Double(i + count) / 16000)
+          try await clock.sleep(until: deadline, tolerance: .milliseconds(1))
+          maximumFeedLateness = max(maximumFeedLateness, seconds(deadline.duration(to: clock.now)))
+        }
         let part = Array(UnsafeBufferPointer(start: buf.floatChannelData![0] + i, count: count))
         for data in try await w.convertCapturedSamples(part, count: UInt32(count)) {
           if let session {
@@ -66,8 +79,9 @@ import Foundation
               data, endingAt: start.addingTimeInterval(Double(i + count) / 16000))
           }
         }
-        try await Task.sleep(for: .milliseconds(3))
+        if pacing == "accelerated" { try await Task.sleep(for: .milliseconds(3)) }
       }
+      let fedAt = clock.now
       if let session {
         session.finish()
         await session.wait()
@@ -92,10 +106,20 @@ import Foundation
         "text": recs.reversed().map(\.text).joined(),
         "states": recs.reversed().map { $0.recognitionState.rawValue },
         "errors": recs.compactMap(\.lastError), "providers": providers.sorted(),
+        "pacing": pacing, "audioFrames": n, "audioSeconds": Double(n) / 16000,
+        "feedSeconds": seconds(began.duration(to: fedAt)),
+        "maximumFeedLateness": maximumFeedLateness,
+        "settledAfterFeedSeconds": seconds(fedAt.duration(to: clock.now)),
+        "audioSHA256": row.audio_sha256,
       ]
       try log.write(
         contentsOf: JSONSerialization.data(withJSONObject: d, options: [.sortedKeys]) + Data([10]))
     }
     await svc.releaseIdle()
+  }
+
+  private static func seconds(_ value: Duration) -> Double {
+    let c = value.components
+    return Double(c.seconds) + Double(c.attoseconds) / 1e18
   }
 }
