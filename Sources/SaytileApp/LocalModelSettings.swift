@@ -10,6 +10,7 @@ struct LocalModelSettings: View {
     @ViewState private var issue: String?
     @ViewState private var deletion: LocalASRID?
     @ViewState private var experiments: [LocalASRID] = []
+    @ViewState private var compatibilityExpanded = false
     private func size(_ bytes: Int64) -> String { ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file) }
 
     var body: some View {
@@ -47,7 +48,7 @@ struct LocalModelSettings: View {
                 Text(fallback).font(.callout).foregroundStyle(.secondary)
             }
             modelRow(LocalModelRecommendation.preferred)
-            DisclosureGroup("兼容与恢复") {
+            DisclosureGroup("兼容与恢复", isExpanded: $compatibilityExpanded) {
                 Text("默认使用 Qwen。本机兼容资源和以前的模型选择保留在这里；正常表达无需更改。")
                     .font(.callout).foregroundStyle(.secondary)
                 if let last = model.lastASR {
@@ -84,6 +85,7 @@ struct LocalModelSettings: View {
                         .controlSize(.small).accessibilityIdentifier("models.restoreDefault")
                 }
             }.accessibilityIdentifier("models.compatibility")
+                .accessibilityAction { compatibilityExpanded.toggle() }
             if let issue { Text(issue).foregroundStyle(.secondary) }
         }
         .task { await watchDirectory() }

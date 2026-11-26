@@ -34,6 +34,7 @@ struct SettingsView: View {
         _cloudService = ViewState(initialValue: initialCloudService ?? (!model.deviceOnly && !model.hosted.selected ? .byok : .hosted))
     }
     @ViewState private var cleanup = false
+    @ViewState private var compatibilityExpanded = false
     private var page: SettingsPage { navigation.page }
     // Keep existing service settings available for people who configured them,
     // without making an unconfigured account/API setup part of everyday use.
@@ -292,7 +293,7 @@ struct SettingsView: View {
                     LabeledContent("源码版本", value: String(revision.prefix(12))).textSelection(.enabled)
                 }
             }.accessibilityIdentifier("settings.diagnostics")
-            DisclosureGroup("高级与兼容设置") {
+            DisclosureGroup("高级与兼容设置", isExpanded: $compatibilityExpanded) {
                 Button("已有云端服务设置…") { navigation.page = .cloud }
                     .accessibilityIdentifier("settings.legacyCloud")
                 Text("保留以前配置的服务和授权。正常使用 Saytile 无需账号、API Key 或云端服务。")
@@ -303,6 +304,7 @@ struct SettingsView: View {
                 }
                 LabeledContent("iCloud", value: model.privateArchiveStatus)
             }.accessibilityIdentifier("settings.compatibility")
+                .accessibilityAction { compatibilityExpanded.toggle() }
         }
     }
 }
