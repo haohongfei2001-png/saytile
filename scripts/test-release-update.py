@@ -167,9 +167,17 @@ def main():
         canary_hash, canary_time = digest(canary), canary.stat().st_mtime_ns
         model_before = None
         if args.research_model_cache:
-            authorized_model = Path("/private/tmp/saytile-beta-021-20261123/.build/local-asr/weights/qwen-small")
-            assert args.research_model_cache.resolve() == authorized_model
-            assert not args.research_model_cache.is_symlink()
+            authorized_model = args.research_model_cache
+            allowed_models = {
+                Path("/private/tmp/saytile-beta-021-20261123/.build/local-asr/weights/qwen-small"),
+                Path("/private/tmp/saytile-023-weights/qwen-small"),
+            }
+            assert authorized_model in allowed_models
+            assert not any(
+                part.is_symlink()
+                for part in (*reversed(authorized_model.parents), authorized_model)
+            )
+            assert authorized_model.is_dir()
             model_fixture = data / "LocalModels/qwen-small"
             assert not model_fixture.exists()
             source_models = model_snapshot(authorized_model)

@@ -1236,11 +1236,50 @@ extension AppModelProbe {
         let before = clipboard.changeCount
         model.copyTimeline(displayed: [:])
         try check(clipboard.changeCount == before, "clearing the panel prevents implicit copy from resurrecting hidden history")
-        _ = try await add(93, "清空后新说的话。")
+        let (clearHead, clearHeadTicket) = try await add(93, "清空后新说的话。")
         await model.refresh()
         model.copyTimeline(displayed: [:])
         try check(clipboard.string(forType: .string) == "清空后新说的话。",
-                  "copy after clear includes only the new paragraph portion")
+                  "copy after clear omits empty members and the preceding separate paragraph")
+
+        // Clear hides the panel; it does not cut an ongoing natural paragraph.
+        model.clearPanel()
+        let (continuation, _) = try await add(96, "短停后继续。")
+        await model.refresh()
+        let visible = model.panelTimelinePage.entries
+        let allEntries = try await model.store.timelinePage().entries
+        guard let headEntry = allEntries.first(where: { $0.id == clearHead.id }),
+              let continuationEntry = allEntries.first(where: { $0.id == continuation.id }) else {
+            throw Failure(message: "same-paragraph continuation after Clear is missing")
+        }
+        try check(headEntry.paragraphID == continuationEntry.paragraphID && visible.map(\.id) == [continuation.id],
+                  "Clear hides earlier text while a short-pause continuation retains the same natural paragraph")
+        let displayed = PanelTimelineDocument(entries: visible).displayed
+        let snapshots = try model.panelInsertionSnapshots(rendered: visible, displayed: displayed)
+        let explicitSnapshots = try model.panelInsertionSnapshots(paragraphID: continuationEntry.paragraphID,
+            rendered: visible, displayed: displayed)
+        let expected = "清空后新说的话。短停后继续。"
+        model.copyTimeline(rendered: visible, displayed: displayed)
+        try check(clipboard.string(forType: .string) == expected && snapshots.map(\.text).joined() == expected,
+                  "default copy and insertion snapshots include the whole ongoing paragraph after Clear")
+        model.copyTimeline(paragraphID: continuationEntry.paragraphID, rendered: visible, displayed: displayed)
+        try check(clipboard.string(forType: .string) == expected && explicitSnapshots.map(\.text).joined() == expected,
+                  "explicit paragraph copy and insertion snapshots retain the hidden earlier member")
+        guard let archived = model.archiveGroups.flatMap(\.paragraphs).first(where: { $0.id == continuationEntry.paragraphID }) else {
+            throw Failure(message: "Clear lost the ongoing archive paragraph")
+        }
+        model.copyParagraph(archived)
+        try check(clipboard.string(forType: .string) == expected,
+                  "archive copy agrees with product copy for the complete paragraph after Clear")
+        let copiedBeforeLateResult = clipboard.changeCount
+        let accepted = try await model.store.applyRecognition(ticket: clearHeadTicket, text: "迟到的前半修订。", isFinal: true)
+        try await model.store.finishRecognition(ticket: clearHeadTicket)
+        await model.refresh()
+        let updatedArchive = try model.store.paragraphCopy(paragraphID: continuationEntry.paragraphID, displayed: [:])
+        try check(accepted && updatedArchive == "迟到的前半修订。短停后继续。" &&
+                  clipboard.changeCount == copiedBeforeLateResult && clipboard.string(forType: .string) == expected &&
+                  snapshots.map(\.text).joined() == expected && explicitSnapshots.map(\.text).joined() == expected,
+                  "a late revision of the hidden member updates history without rewriting acquired copy or insertion snapshots")
         await model.prepareForExit()
         return count
     }
