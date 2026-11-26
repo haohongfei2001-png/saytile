@@ -1,0 +1,219 @@
+{
+  "schema": "saytile.local-audio-forensics.v1",
+  "date": "2026-11-26",
+  "release": "1.1.0",
+  "build": 578,
+  "pr": 57,
+  "reviewed_head": "410f1051caf78f7e0656151242e0c36624799609",
+  "product_source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+  "product_sha256": "7cd25d7fa5672775502adcbe2c12476abec97a3ecd195fa176f66a69e58c4e98",
+  "signed_worker_sha256": "60ae1cce89ccc277b29c889eb7d6637566304d560d4b801e2ac0c93540269508",
+  "model": "aufklarer/Qwen3-ASR-0.6B-MLX-4bit",
+  "weights_revision": "bc441bd1e4295c1f42d9879f056049a925b6e013",
+  "manifest_files_verified": 6,
+  "environment": {
+    "chip": "Apple M5",
+    "memory_GiB": 24,
+    "macOS": "27.0 (26A428)"
+  },
+  "decision": "HOLD",
+  "prior_field_session": {
+    "provider": "apple-speech-analyzer",
+    "seconds": 152.868,
+    "recordings": 13,
+    "mono_pcm16_hz": 16000,
+    "frames": 904640,
+    "seconds_preserved": 56.54,
+    "known_transcript": false
+  },
+  "integrity": {
+    "archive_database_readonly_integrity_and_fk": "PASS",
+    "original_wavs_byte_identical_copies": 13,
+    "original_db_and_13_wav_unchanged": true,
+    "installed_533_fingerprint_unchanged": true
+  },
+  "acoustics": {
+    "short_window_ms": 20,
+    "field_rms_dbfs": -32.438,
+    "field_rms_p50_p95_p99_dbfs": [
+      -50.18,
+      -37.8,
+      -18.81
+    ],
+    "top_5_percent_window_energy_share": 0.97737,
+    "field_rail_samples": 13,
+    "webrtc_fresh_vote_seconds_on_reconstruction": 39.92,
+    "periodicity_proxy_seconds": 2.46,
+    "speech_classifier": {
+      "window_s": 1,
+      "stride_s": 0.5,
+      "field_windows": 95,
+      "field_covered_s": 54.0,
+      "field_top1_speech": 0,
+      "field_max_speech_score": 0.0893,
+      "rms_normalized_field_max_speech_score": 0.0806,
+      "public_windows": 19,
+      "public_top1_speech": 14,
+      "public_max_speech_score": 0.8951
+    },
+    "public_control_rms_dbfs": -48.456,
+    "public_control_top5_energy_share": 0.5796,
+    "public_control_output_lexical_units": 37,
+    "public_matched_level_exact_final": true,
+    "digital_silence_auto_empty": true
+  },
+  "A_to_E": {
+    "A": {
+      "inputs": 13,
+      "empty_finals": 8,
+      "nonempty_finals": 5,
+      "lexical_units": 5,
+      "interjection_only_finals": 5,
+      "inference_seconds_sum": 1.155
+    },
+    "B": {
+      "inputs": 1,
+      "empty_finals": 0,
+      "nonempty_finals": 1,
+      "lexical_units": 4,
+      "interjection_only_finals": 1,
+      "inference_seconds_sum": 4.291
+    },
+    "C": {
+      "inputs": 1,
+      "empty_finals": 0,
+      "nonempty_finals": 1,
+      "lexical_units": 2,
+      "interjection_only_finals": 1,
+      "inference_seconds_sum": 1.627
+    },
+    "D": {
+      "inputs": 13,
+      "empty_finals": 7,
+      "nonempty_finals": 6,
+      "lexical_units": 8,
+      "interjection_only_finals": 5,
+      "inference_seconds_sum": 1.051
+    },
+    "E": {
+      "inputs": 13,
+      "empty_finals": 8,
+      "nonempty_finals": 5,
+      "lexical_units": 5,
+      "interjection_only_finals": 5,
+      "inference_seconds_sum": 1.039
+    }
+  },
+  "assembly": {
+    "B_frames": 2383040,
+    "B_inserted_unobserved_gap_zero_frames": 1478400,
+    "max_clock_grid_rounding_ms": 9.642,
+    "C_frames": 952640,
+    "C_synthetic_gap_ms": 250,
+    "E_target_dbfs": -23,
+    "E_max_gain_db": 12,
+    "D_E_peak_cap_dbfs": -1,
+    "E_exactly_equals_A": 13,
+    "D_unverified_multichar_forms": 1,
+    "D_multichar_form_persists_in_gain_perturbations": true
+  },
+  "F_same_weight_language_pair": {
+    "diagnostic_tool": "speech-swift macOS arm64 v0.0.29, single-row batch; auto and Chinese use the same frontend and tokens apart from the prompt",
+    "tool_archive_sha256": "ff426a060004dd39b3d00ad014a648747d48cb78b800672aa17221ada2453406",
+    "diagnostic_executable_sha256": "ca7868cc8493809fdad2f03fc77236a81096c56e46e3b19bf44850aab1b882d9",
+    "upstream_decoder_file_equal_to_product_pinned_base": true,
+    "auto": {
+      "inputs": 13,
+      "empty_finals": 8,
+      "nonempty_finals": 5,
+      "lexical_units": 5,
+      "interjection_only_finals": 5,
+      "inference_seconds_sum": 0.765
+    },
+    "forced_Chinese": {
+      "inputs": 13,
+      "empty_finals": 0,
+      "nonempty_finals": 13,
+      "lexical_units": 13,
+      "interjection_only_finals": 13,
+      "inference_seconds_sum": 0.808
+    },
+    "field_auto_equal_to_signed_worker": 13,
+    "control_auto_equal_to_signed_worker": 2,
+    "new_nonempty_equal_to_forced_Chinese_digital_zero": 8,
+    "zero_control_seconds": 5,
+    "forced_zero_lexical_units": 1,
+    "public_reference_equal_in_both_modes": true
+  },
+  "conversion_known_signals": {
+    "cases": 5,
+    "reference_byte_exact_cases": 5,
+    "all_frames_preserved": true,
+    "dropped_frames": 0,
+    "max_absolute_gain_error_db": 0.002528,
+    "historical_48k_pcm_available": false
+  },
+  "native_replay": {
+    "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+    "provider": [
+      "qwen-small"
+    ],
+    "full_fixture_frames": 2383040,
+    "fixture_20ms_events": 7447,
+    "journal_frames": 1160320,
+    "journal_sample_differences_vs_input": 0,
+    "source_segments_fully_retained": 12,
+    "source_frames_represented": 860480,
+    "source_segment_not_readmitted_frames": 44160,
+    "excluded_segment_direct_final_empty": true,
+    "substituted_gap_zero_frames_in_journals": 299840,
+    "actual_sessions": 10,
+    "journal_pipe_EOS_counts_match": 10,
+    "signed_redecode_equals_each_native_final": 10,
+    "worker_partials": 9,
+    "worker_finals": 10,
+    "completed": 5,
+    "empty_failed": 5,
+    "partial_preserved_on_failed": 1,
+    "final_revisions": 5,
+    "partial_revisions": 6,
+    "appkit_changes": 15,
+    "external_dispatches": 0
+  },
+  "limits": {
+    "personal_CER": null,
+    "unrecorded_input": true,
+    "preVAD_live_PCM_available": false,
+    "historical_worker_ingress_checksum": null,
+    "historical_Qwen_live_human_speech": "NOT_RUN",
+    "intelligible_speech_ground_truth_seconds": null
+  },
+  "conclusions": {
+    "original_acceptance_route": "CONFIRMED_WRONG_ENGINE_FOR_TEST",
+    "archived_pcm_reproduces_failure_before_UI": "CONFIRMED",
+    "continuous_intelligible_speech_in_saved_segments": "NOT_ESTABLISHED",
+    "underlying_physical_or_preVAD_cause": "UNRESOLVED",
+    "automatic_gain_or_forced_Chinese_release_change": "NO_GO",
+    "replay_pipe_EOS_archive_integrity": "PASS",
+    "live_speech_quality": "FAIL",
+    "changes_to_product_source": 0,
+    "new_recordings": 0
+  },
+  "energy_split_control": {
+    "method": "Per file, top 5% of nonoverlapping 20 ms windows versus the complementary samples. 5 ms half-Hann boundary ramps, no gain, stems sum sample-exactly. Diagnostic only.",
+    "G-top": {
+      "field_files": 13,
+      "field_empty": 13,
+      "public_control_units": 7,
+      "public_control_exact_original": false,
+      "zero_control_empty": true
+    },
+    "G-rest": {
+      "field_files": 13,
+      "field_empty": 13,
+      "public_control_units": 37,
+      "public_control_exact_original": false,
+      "zero_control_empty": true
+    }
+  }
+}
